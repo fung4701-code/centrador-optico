@@ -3,48 +3,137 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Centrador Pro - Joysticks de Precisión</title>
+    <title>Centrador Optométrico Pro</title>
     <style>
-        body { font-family: Arial, sans-serif; text-align: center; background-color: #121212; color: #ffffff; margin: 0; padding: 0; user-select: none; }
-        .header { background-color: #1f1f1f; padding: 10px; font-size: 18px; font-weight: bold; border-bottom: 2px solid #007bff; }
-        .container { width: 100%; display: flex; flex-direction: column; align-items: center; }
-        
-        video, canvas { width: 100%; max-height: 60vh; object-fit: cover; background-color: #000; touch-action: none; cursor: crosshair; }
-        
-        .controles { margin-top: 10px; width: 100%; display: flex; justify-content: center; flex-wrap: wrap; }
-        button { padding: 12px 20px; font-size: 16px; margin: 5px; font-weight: bold; border-radius: 8px; border: none; }
-        .btn-primario { background-color: #007bff; color: white; width: 90%; }
-        .btn-secundario { background-color: #444; color: white; width: 40%; display: none; }
-        #info { margin-top: 10px; font-size: 14px; padding: 10px; background: #2a2a2a; border-radius: 8px; width: 90%; border-left: 5px solid #ff9800; }
-        
-        table { width: 90%; margin-top: 10px; border-collapse: collapse; display: none; background: #1f1f1f; border-radius: 8px; overflow: hidden; }
-        th, td { padding: 8px; border-bottom: 1px solid #333; text-align: center; font-size: 15px; }
-        th { background-color: #007bff; color: white; }
-        .destacado { color: #00ff00; font-weight: bold; font-size: 18px; }
+        /* Paleta de colores estilo Zeiss i.Terminal */
+        :root {
+            --bg-color: #2b2b2d;
+            --panel-bg: #1c1c1e;
+            --text-main: #f5f5f7;
+            --text-muted: #86868b;
+            --accent: #ffd60a; /* Amarillo Zeiss */
+            --border-color: #38383a;
+        }
+
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
+            margin: 0; padding: 0; background-color: var(--bg-color); color: var(--text-main); 
+            user-select: none; overflow: hidden;
+        }
+
+        /* Cabecera minimalista */
+        .header { 
+            padding: 15px 20px; font-size: 20px; font-weight: 300; letter-spacing: 0.5px; 
+            border-bottom: 1px solid var(--border-color); background: var(--bg-color);
+        }
+
+        /* Contenedor Flexbox: Columna en vertical, Fila en horizontal */
+        .main-container { 
+            display: flex; flex-direction: column; height: calc(100vh - 55px); width: 100vw;
+        }
+
+        /* Panel Izquierdo: Cámara / Foto */
+        .panel-izquierdo { 
+            flex: 1; display: flex; justify-content: center; align-items: center; 
+            background: #000; position: relative; overflow: hidden;
+        }
+        video, canvas { 
+            max-width: 100%; max-height: 100%; object-fit: contain; touch-action: none; cursor: crosshair;
+        }
+
+        /* Panel Derecho: Controles y Tablas */
+        .panel-derecho { 
+            flex: 1; padding: 20px; background: var(--panel-bg); overflow-y: auto; 
+            display: flex; flex-direction: column; gap: 20px; border-top: 1px solid var(--border-color);
+        }
+
+        /* Caja de instrucciones */
+        #info { 
+            background: #2c2c2e; padding: 15px; border-radius: 8px; font-size: 15px; 
+            border-left: 4px solid var(--accent); line-height: 1.4; font-weight: 300;
+        }
+
+        /* Botones */
+        .controles { display: flex; gap: 10px; width: 100%; }
+        button { 
+            flex: 1; padding: 14px 10px; font-size: 16px; font-weight: 500; 
+            border-radius: 8px; border: none; cursor: pointer; transition: 0.2s;
+        }
+        .btn-primario { background-color: #007aff; color: white; }
+        .btn-primario:active { background-color: #005bb5; }
+        .btn-secundario { background-color: #3a3a3c; color: white; display: none; }
+
+        /* Estilo de Tabla estilo Zeiss */
+        .seccion-datos { display: none; }
+        h3 { margin: 0 0 10px 0; font-weight: 400; font-size: 18px; color: var(--text-main); }
+        table { width: 100%; border-collapse: collapse; font-size: 15px; }
+        th, td { padding: 10px 5px; text-align: center; border-bottom: 1px solid var(--border-color); }
+        th { color: var(--text-muted); font-weight: 400; font-size: 13px; text-align: right; }
+        td:first-child { text-align: left; color: var(--text-muted); font-weight: 500; width: 30%; }
+        td { text-align: right; }
+        tr:last-child td { border-bottom: none; }
+        .fila-total { border-top: 1px solid var(--text-muted); }
+
+        /* MAGIA RESPONSIVE: Si giras el teléfono a horizontal (Landscape) */
+        @media (min-width: 600px) and (orientation: landscape) {
+            .main-container { flex-direction: row; }
+            .panel-izquierdo { flex: 1.5; border-right: 1px solid var(--border-color); }
+            .panel-derecho { flex: 1; border-top: none; }
+        }
     </style>
 </head>
 <body>
 
-<div class="header">Geometría Facial (Precisión)</div>
+<div class="header">i.Terminal Prototipo</div>
 
-<div class="container">
-    <video id="video" autoplay playsinline muted></video>
-    <canvas id="canvas" style="display:none;"></canvas>
-
-    <div class="controles">
-        <button id="btnIniciar" class="btn-primario">📸 Iniciar Cámara</button>
-        <button id="btnCapturar" class="btn-primario" style="display:none;">Congelar Imagen</button>
-        <button id="btnReiniciar" class="btn-secundario">Repetir Foto</button>
+<div class="main-container">
+    <!-- PANEL IZQUIERDO -->
+    <div class="panel-izquierdo">
+        <video id="video" autoplay playsinline muted></video>
+        <canvas id="canvas" style="display:none;"></canvas>
     </div>
 
-    <div id="info">1️⃣ Pon la tarjeta en la frente del paciente. Toca "Iniciar Cámara".</div>
+    <!-- PANEL DERECHO -->
+    <div class="panel-derecho">
+        <div class="controles">
+            <button id="btnIniciar" class="btn-primario">Iniciar Cámara</button>
+            <button id="btnCapturar" class="btn-primario" style="display:none;">Congelar Imagen</button>
+            <button id="btnReiniciar" class="btn-secundario">Rehacer</button>
+        </div>
 
-    <table id="tablaResultados">
-        <tr><th>Medida</th><th>OD (Der)</th><th>OI (Izq)</th></tr>
-        <tr><td>D.P. Monocular</td><td id="dpDer">-</td><td id="dpIzq">-</td></tr>
-        <tr><td>Altura Pupilar</td><td id="altDer">-</td><td id="altIzq">-</td></tr>
-        <tr><td><b>D.P. Total</b></td><td colspan="2" id="dpTotal" class="destacado">-</td></tr>
-    </table>
+        <div id="info">Coloca la tarjeta de calibración frontal. Toca "Iniciar Cámara".</div>
+
+        <!-- Tabla de Datos (Estilo Zeiss) -->
+        <div class="seccion-datos" id="seccionDatos">
+            <h3>Datos de centrado</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th>DP</th>
+                        <th>Altura seg.</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>D</td> <!-- Derecho -->
+                        <td id="dpDer">-</td>
+                        <td id="altDer">-</td>
+                    </tr>
+                    <tr>
+                        <td>I</td> <!-- Izquierdo -->
+                        <td id="dpIzq">-</td>
+                        <td id="altIzq">-</td>
+                    </tr>
+                    <tr class="fila-total">
+                        <td>Total</td>
+                        <td id="dpTotal">-</td>
+                        <td>-</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
 </div>
 
 <script>
@@ -55,7 +144,7 @@
     const btnCapturar = document.getElementById('btnCapturar');
     const btnReiniciar = document.getElementById('btnReiniciar');
     const info = document.getElementById('info');
-    const tablaResultados = document.getElementById('tablaResultados');
+    const seccionDatos = document.getElementById('seccionDatos');
 
     const canvasFoto = document.createElement('canvas');
     const ctxFoto = canvasFoto.getContext('2d');
@@ -63,49 +152,41 @@
     const TAMANO_TARJETA_MM = 85.6; 
     let factorEscala = 0; 
 
+    // CONFIGURACIÓN VISUAL
+    const COLOR_ZEISS = "#ffd60a"; // Amarillo
+
     let marcas = {}; 
     let ordenPasos = ['tarjetaIzq', 'tarjetaDer', 'nariz', 'pupilaDer', 'pupilaIzq', 'baseDer', 'baseIzq'];
     let descripciones = [
-        "Toca el borde IZQUIERDO de la tarjeta.",
-        "Toca el borde DERECHO de la tarjeta.",
-        "Toca el centro del PUENTE de la nariz.",
-        "Toca la PUPILA DERECHA del paciente (a tu izq).",
-        "Toca la PUPILA IZQUIERDA del paciente.",
-        "Toca el ARO INFERIOR bajo la pupila derecha.",
-        "Toca el ARO INFERIOR bajo la pupila izquierda."
+        "Calibración: Borde IZQ de la tarjeta.",
+        "Calibración: Borde DER de la tarjeta.",
+        "Toque el centro del puente nasal.",
+        "Toque la pupila DERECHA (D).",
+        "Toque la pupila IZQUIERDA (I).",
+        "Toque la altura del aro DERECHO.",
+        "Toque la altura del aro IZQUIERDO."
     ];
     let pasoActual = 0;
     
     let nodoArrastrado = null; 
     let editando = false; 
-    
-    // Variables para un arrastre perfecto (sin saltos)
     let dragOffsetX = 0;
     let dragOffsetY = 0;
 
-    // INICIAR CÁMARA
     btnIniciar.addEventListener('click', async () => {
         try {
-            // Simplificamos la petición para máxima compatibilidad en Android
-            const stream = await navigator.mediaDevices.getUserMedia({ 
-                video: { facingMode: "environment" } 
-            });
+            const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
             video.srcObject = stream;
-            
-            // Forzamos la reproducción por si el celular se queda "pensando"
             await video.play(); 
-            
             btnIniciar.style.display = 'none';
             btnCapturar.style.display = 'block';
-            info.innerHTML = "Alinea al paciente. Presiona <b>Congelar Imagen</b>.";
+            info.innerHTML = "Alinee al paciente. Asegure visibilidad del armazón.<br><br>Presione <b>Congelar Imagen</b>.";
         } catch (err) { 
-            // Ahora si falla, nos dirá el motivo exacto en la pantalla
             alert("No se pudo abrir la cámara. Motivo: " + err.message); 
-            info.innerHTML = "❌ Error: " + err.message;
+            info.innerHTML = "❌ Error de cámara.";
         }
     });
 
-    // CAPTURAR FOTO
     btnCapturar.addEventListener('click', () => {
         canvas.width = video.videoWidth;
         canvas.height = video.videoHeight;
@@ -119,97 +200,81 @@
         btnCapturar.style.display = 'none';
         btnReiniciar.style.display = 'block';
         
-        marcas = {};
-        pasoActual = 0;
-        editando = false;
-        tablaResultados.style.display = 'none';
-        info.innerHTML = `📐 <b>Paso 1:</b> ${descripciones[pasoActual]}`;
-        
+        marcas = {}; pasoActual = 0; editando = false;
+        seccionDatos.style.display = 'none';
+        info.innerHTML = `Paso ${pasoActual + 1}: <b>${descripciones[pasoActual]}</b>`;
         dibujarTodo(); 
     });
 
     btnReiniciar.addEventListener('click', () => {
         video.style.display = 'block'; canvas.style.display = 'none';
         btnCapturar.style.display = 'block'; btnReiniciar.style.display = 'none';
-        tablaResultados.style.display = 'none'; info.innerHTML = "Alinea al paciente y toma la foto.";
+        seccionDatos.style.display = 'none'; info.innerHTML = "Alinee al paciente y tome la foto.";
     });
 
-    // =============== MOTOR DE RENDERIZADO ===============
+    // =============== MOTOR DE RENDERIZADO (ESTILO ZEISS) ===============
 
     function dibujarTodo() {
         if(!canvasFoto.width) return;
-        
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         ctx.drawImage(canvasFoto, 0, 0);
 
-        // Líneas geométricas principales
-        if (marcas.tarjetaIzq && marcas.tarjetaDer) dibujarLinea(marcas.tarjetaIzq, marcas.tarjetaDer, "#00aaff");
-        if (marcas.nariz) dibujarLinea({x: marcas.nariz.x, y: 0}, {x: marcas.nariz.x, y: canvas.height}, "#ff9800", true);
-        if (marcas.nariz && marcas.pupilaDer) dibujarLinea(marcas.pupilaDer, {x: marcas.nariz.x, y: marcas.pupilaDer.y}, "#00ff00");
-        if (marcas.nariz && marcas.pupilaIzq) dibujarLinea(marcas.pupilaIzq, {x: marcas.nariz.x, y: marcas.pupilaIzq.y}, "#00ff00");
-        if (marcas.pupilaDer && marcas.baseDer) dibujarLinea(marcas.pupilaDer, {x: marcas.pupilaDer.x, y: marcas.baseDer.y}, "#ff00ff", true);
-        if (marcas.pupilaIzq && marcas.baseIzq) dibujarLinea(marcas.pupilaIzq, {x: marcas.pupilaIzq.x, y: marcas.baseIzq.y}, "#ff00ff", true);
+        // Líneas geométricas delgadas amarillas
+        if (marcas.tarjetaIzq && marcas.tarjetaDer) dibujarLinea(marcas.tarjetaIzq, marcas.tarjetaDer, COLOR_ZEISS);
+        if (marcas.nariz) dibujarLinea({x: marcas.nariz.x, y: 0}, {x: marcas.nariz.x, y: canvas.height}, COLOR_ZEISS, true);
+        if (marcas.nariz && marcas.pupilaDer) dibujarLinea(marcas.pupilaDer, {x: marcas.nariz.x, y: marcas.pupilaDer.y}, COLOR_ZEISS);
+        if (marcas.nariz && marcas.pupilaIzq) dibujarLinea(marcas.pupilaIzq, {x: marcas.nariz.x, y: marcas.pupilaIzq.y}, COLOR_ZEISS);
+        if (marcas.pupilaDer && marcas.baseDer) dibujarLinea(marcas.pupilaDer, {x: marcas.pupilaDer.x, y: marcas.baseDer.y}, COLOR_ZEISS, true);
+        if (marcas.pupilaIzq && marcas.baseIzq) dibujarLinea(marcas.pupilaIzq, {x: marcas.pupilaIzq.x, y: marcas.baseIzq.y}, COLOR_ZEISS, true);
 
-        // Dibujar las Miras con sus Joysticks
-        for (let key in marcas) dibujarMira(marcas[key].x, marcas[key].y, marcas[key].color);
-    }
-
-    function dibujarMira(x, y, color) {
-        // 1. DIBUJAR LA CRUZ PRINCIPAL (Crosshair transparente en el centro)
-        ctx.strokeStyle = color; 
-        ctx.lineWidth = 4;
-        ctx.beginPath();
-        ctx.moveTo(x - 20, y); ctx.lineTo(x + 20, y); // Horizontal
-        ctx.moveTo(x, y - 20); ctx.lineTo(x, y + 20); // Vertical
-        ctx.stroke();
-
-        // 2. DIBUJAR EL "JOYSTICK" (Solo si estamos en Modo Edición)
-        if (editando) {
-            // Distancia del joystick hacia abajo, escalada al tamaño de la cámara
-            const offsetJoystickY = canvas.width * 0.08; 
-            
-            // Línea punteada que conecta la cruz con el joystick
-            ctx.lineWidth = 2;
-            ctx.setLineDash([6, 6]);
-            ctx.beginPath();
-            ctx.moveTo(x, y + 25);
-            ctx.lineTo(x, y + offsetJoystickY - 25);
-            ctx.stroke();
-            ctx.setLineDash([]);
-
-            // El botón del Joystick
-            let joyY = y + offsetJoystickY;
-            
-            // Fondo oscuro semitransparente del joystick
-            ctx.fillStyle = "rgba(0, 0, 0, 0.7)"; 
-            ctx.beginPath();
-            ctx.arc(x, joyY, 25, 0, Math.PI * 2);
-            ctx.fill();
-            
-            // Borde coloreado
-            ctx.strokeStyle = color;
-            ctx.lineWidth = 3;
-            ctx.beginPath();
-            ctx.arc(x, joyY, 25, 0, Math.PI * 2);
-            ctx.stroke();
-
-            // Ícono de flechas adentro
-            ctx.fillStyle = "#ffffff";
-            ctx.font = "24px Arial";
-            ctx.textAlign = "center";
-            ctx.textBaseline = "middle";
-            ctx.fillText("✥", x, joyY);
-        }
+        for (let key in marcas) dibujarMira(marcas[key].x, marcas[key].y);
     }
 
     function dibujarLinea(p1, p2, color, punteada = false) {
-        ctx.strokeStyle = color; ctx.lineWidth = 2;
-        if(punteada) ctx.setLineDash([5, 5]); else ctx.setLineDash([]);
+        ctx.strokeStyle = "rgba(0,0,0,0.5)"; ctx.lineWidth = 3; // Sombra negra
+        ctx.beginPath(); ctx.moveTo(p1.x, p1.y); ctx.lineTo(p2.x, p2.y); ctx.stroke();
+        
+        ctx.strokeStyle = color; ctx.lineWidth = 1.5; // Línea amarilla fina
+        if(punteada) ctx.setLineDash([4, 4]); else ctx.setLineDash([]);
         ctx.beginPath(); ctx.moveTo(p1.x, p1.y); ctx.lineTo(p2.x, p2.y); ctx.stroke();
         ctx.setLineDash([]);
     }
 
-    // =============== MATEMÁTICAS ===============
+    function dibujarMira(x, y) {
+        // Sombra negra para contraste
+        ctx.strokeStyle = "rgba(0,0,0,0.6)"; ctx.lineWidth = 4;
+        ctx.beginPath(); ctx.arc(x, y, 14, 0, Math.PI * 2); ctx.stroke();
+        
+        // Círculo amarillo
+        ctx.strokeStyle = COLOR_ZEISS; ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.arc(x, y, 14, 0, Math.PI * 2); ctx.stroke();
+
+        // Cruz interior extendida
+        ctx.beginPath();
+        ctx.moveTo(x - 22, y); ctx.lineTo(x + 22, y);
+        ctx.moveTo(x, y - 22); ctx.lineTo(x, y + 22);
+        ctx.stroke();
+
+        // Puntito central amarillo
+        ctx.fillStyle = COLOR_ZEISS;
+        ctx.beginPath(); ctx.arc(x, y, 2, 0, Math.PI * 2); ctx.fill();
+
+        // Joysticks
+        if (editando) {
+            const offsetY = canvas.width * 0.08; 
+            ctx.setLineDash([4, 4]); ctx.lineWidth = 1; ctx.strokeStyle = COLOR_ZEISS;
+            ctx.beginPath(); ctx.moveTo(x, y + 22); ctx.lineTo(x, y + offsetY - 20); ctx.stroke(); ctx.setLineDash([]);
+
+            let joyY = y + offsetY;
+            ctx.fillStyle = "rgba(28, 28, 30, 0.85)"; ctx.beginPath(); ctx.arc(x, joyY, 24, 0, Math.PI * 2); ctx.fill();
+            ctx.strokeStyle = COLOR_ZEISS; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.arc(x, joyY, 24, 0, Math.PI * 2); ctx.stroke();
+            
+            ctx.fillStyle = COLOR_ZEISS; ctx.font = "20px Arial"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
+            ctx.fillText("✥", x, joyY);
+        }
+    }
+
+    // =============== CÁLCULOS ===============
 
     function calcularMedidas() {
         if (!marcas.tarjetaIzq || !marcas.tarjetaDer || !marcas.nariz || !marcas.pupilaDer || !marcas.pupilaIzq || !marcas.baseDer || !marcas.baseIzq) return;
@@ -223,17 +288,18 @@
         const altDerMM = Math.abs(marcas.baseDer.y - marcas.pupilaDer.y) * factorEscala;
         const altIzqMM = Math.abs(marcas.baseIzq.y - marcas.pupilaIzq.y) * factorEscala;
 
-        document.getElementById('dpDer').innerText = dpDerMM.toFixed(1) + " mm";
-        document.getElementById('dpIzq').innerText = dpIzqMM.toFixed(1) + " mm";
-        document.getElementById('altDer').innerText = altDerMM.toFixed(1) + " mm";
-        document.getElementById('altIzq').innerText = altIzqMM.toFixed(1) + " mm";
-        document.getElementById('dpTotal').innerText = (dpDerMM + dpIzqMM).toFixed(1) + " mm";
+        // Actualizar Tabla estilo Zeiss
+        document.getElementById('dpDer').innerText = dpDerMM.toFixed(1);
+        document.getElementById('dpIzq').innerText = dpIzqMM.toFixed(1);
+        document.getElementById('altDer').innerText = altDerMM.toFixed(1);
+        document.getElementById('altIzq').innerText = altIzqMM.toFixed(1);
+        document.getElementById('dpTotal').innerText = (dpDerMM + dpIzqMM).toFixed(1);
 
-        tablaResultados.style.display = 'table';
-        info.innerHTML = "✅ <b>Modo Edición:</b> Usa los círculos inferiores (✥) para mover las cruces sin taparlas con tu dedo.";
+        seccionDatos.style.display = 'block';
+        info.innerHTML = "<b>Modo Edición:</b> Arrastre los cursores inferiores (✥) para ajustar con precisión fina.";
     }
 
-    // =============== CONTROLES TÁCTILES ANTI-OBSTRUCCIÓN ===============
+    // =============== CONTROLES ===============
 
     function obtenerCoordenadas(evento) {
         const rect = canvas.getBoundingClientRect();
@@ -246,60 +312,27 @@
     }
 
     canvas.addEventListener('pointerdown', (evento) => {
-        evento.preventDefault();
-        canvas.setPointerCapture(evento.pointerId); 
-        
+        evento.preventDefault(); canvas.setPointerCapture(evento.pointerId); 
         const pos = obtenerCoordenadas(evento);
-        const radioAgarreSeguro = 60 * pos.ratio; // Radio amplio para que sea fácil tocarlo
+        const radioSeguro = 60 * pos.ratio; 
 
         if (editando) {
-            const offsetJoystickY = canvas.width * 0.08; // Misma distancia del dibujo
-
+            const offsetY = canvas.width * 0.08; 
             for (let key in marcas) {
-                // Coordenadas del Joystick inferior
-                let joyX = marcas[key].x;
-                let joyY = marcas[key].y + offsetJoystickY;
-                
-                // Opción 1: ¿El usuario tocó el Joystick de abajo?
-                let dxJoy = joyX - pos.x;
-                let dyJoy = joyY - pos.y;
-                if (Math.sqrt(dxJoy * dxJoy + dyJoy * dyJoy) < radioAgarreSeguro) {
+                let jX = marcas[key].x; let jY = marcas[key].y + offsetY;
+                if (Math.hypot(jX - pos.x, jY - pos.y) < radioSeguro || Math.hypot(marcas[key].x - pos.x, marcas[key].y - pos.y) < radioSeguro) {
                     nodoArrastrado = key;
-                    // Guardamos la diferencia exacta para que la cruz no salte
-                    dragOffsetX = pos.x - marcas[key].x;
-                    dragOffsetY = pos.y - marcas[key].y;
+                    dragOffsetX = pos.x - marcas[key].x; dragOffsetY = pos.y - marcas[key].y;
                     return; 
-                }
-
-                // Opción 2: ¿El usuario tocó la cruz directamente por costumbre?
-                let dxCruz = marcas[key].x - pos.x;
-                let dyCruz = marcas[key].y - pos.y;
-                if (Math.sqrt(dxCruz * dxCruz + dyCruz * dyCruz) < radioAgarreSeguro) {
-                    nodoArrastrado = key;
-                    dragOffsetX = pos.x - marcas[key].x;
-                    dragOffsetY = pos.y - marcas[key].y;
-                    return;
                 }
             }
         } else {
-            // Fase de colocar puntos iniciales
             if (pasoActual < ordenPasos.length) {
-                let idPaso = ordenPasos[pasoActual];
-                let color = "#00ff00"; 
-                if(idPaso.includes("tarjeta")) color = "#00aaff"; 
-                if(idPaso.includes("nariz")) color = "#ff9800"; 
-                if(idPaso.includes("base")) color = "#ff00ff"; 
-
-                marcas[idPaso] = { x: pos.x, y: pos.y, color: color };
+                marcas[ordenPasos[pasoActual]] = { x: pos.x, y: pos.y };
                 pasoActual++;
-
-                if (pasoActual < ordenPasos.length) {
-                    info.innerHTML = `📍 <b>Paso ${pasoActual + 1}:</b> ${descripciones[pasoActual]}`;
-                } else {
-                    editando = true; // Activar joysticks
-                }
-                dibujarTodo();
-                if (editando) calcularMedidas();
+                if (pasoActual < ordenPasos.length) info.innerHTML = `Paso ${pasoActual + 1}: <b>${descripciones[pasoActual]}</b>`;
+                else editando = true; 
+                dibujarTodo(); if (editando) calcularMedidas();
             }
         }
     });
@@ -307,27 +340,14 @@
     canvas.addEventListener('pointermove', (evento) => {
         if (!nodoArrastrado) return; 
         evento.preventDefault();
-        
         const pos = obtenerCoordenadas(evento);
-        // El punto principal se mueve manteniendo la distancia al dedo
-        marcas[nodoArrastrado].x = pos.x - dragOffsetX;
-        marcas[nodoArrastrado].y = pos.y - dragOffsetY;
-        
-        dibujarTodo(); 
-        if (editando) calcularMedidas(); 
+        marcas[nodoArrastrado].x = pos.x - dragOffsetX; marcas[nodoArrastrado].y = pos.y - dragOffsetY;
+        dibujarTodo(); if (editando) calcularMedidas(); 
     });
 
-    canvas.addEventListener('pointerup', (evento) => {
-        nodoArrastrado = null;
-        canvas.releasePointerCapture(evento.pointerId);
-    });
-
-    canvas.addEventListener('pointercancel', (evento) => {
-        nodoArrastrado = null;
-        canvas.releasePointerCapture(evento.pointerId);
-    });
+    canvas.addEventListener('pointerup', (e) => { nodoArrastrado = null; canvas.releasePointerCapture(e.pointerId); });
+    canvas.addEventListener('pointercancel', (e) => { nodoArrastrado = null; canvas.releasePointerCapture(e.pointerId); });
 
 </script>
-
 </body>
 </html>
