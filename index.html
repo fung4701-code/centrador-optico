@@ -28,7 +28,7 @@
 <div class="header">Geometría Facial (Precisión)</div>
 
 <div class="container">
-    <video id="video" autoplay playsinline></video>
+    <video id="video" autoplay playsinline muted></video>
     <canvas id="canvas" style="display:none;"></canvas>
 
     <div class="controles">
@@ -86,14 +86,23 @@
     // INICIAR CÁMARA
     btnIniciar.addEventListener('click', async () => {
         try {
+            // Simplificamos la petición para máxima compatibilidad en Android
             const stream = await navigator.mediaDevices.getUserMedia({ 
-                video: { facingMode: "environment", width: { ideal: 1920 }, height: { ideal: 1080 } } 
+                video: { facingMode: "environment" } 
             });
             video.srcObject = stream;
+            
+            // Forzamos la reproducción por si el celular se queda "pensando"
+            await video.play(); 
+            
             btnIniciar.style.display = 'none';
             btnCapturar.style.display = 'block';
             info.innerHTML = "Alinea al paciente. Presiona <b>Congelar Imagen</b>.";
-        } catch (err) { alert("Error de cámara."); }
+        } catch (err) { 
+            // Ahora si falla, nos dirá el motivo exacto en la pantalla
+            alert("No se pudo abrir la cámara. Motivo: " + err.message); 
+            info.innerHTML = "❌ Error: " + err.message;
+        }
     });
 
     // CAPTURAR FOTO
