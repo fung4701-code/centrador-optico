@@ -3,134 +3,76 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Centrador Optométrico Pro</title>
+    <title>Centrador Pro - Reflejo Corneal</title>
     <style>
-        /* Paleta de colores estilo Zeiss i.Terminal */
-        :root {
-            --bg-color: #2b2b2d;
-            --panel-bg: #1c1c1e;
-            --text-main: #f5f5f7;
-            --text-muted: #86868b;
-            --accent: #ffd60a; /* Amarillo Zeiss */
-            --border-color: #38383a;
-        }
-
-        body { 
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
-            margin: 0; padding: 0; background-color: var(--bg-color); color: var(--text-main); 
-            user-select: none; overflow: hidden;
-        }
-
-        /* Cabecera minimalista */
-        .header { 
-            padding: 15px 20px; font-size: 20px; font-weight: 300; letter-spacing: 0.5px; 
-            border-bottom: 1px solid var(--border-color); background: var(--bg-color);
-        }
-
-        /* Contenedor Flexbox: Columna en vertical, Fila en horizontal */
-        .main-container { 
-            display: flex; flex-direction: column; height: calc(100vh - 55px); width: 100vw;
-        }
-
-        /* Panel Izquierdo: Cámara / Foto */
-        .panel-izquierdo { 
-            flex: 1; display: flex; justify-content: center; align-items: center; 
-            background: #000; position: relative; overflow: hidden;
-        }
-        video, canvas { 
-            max-width: 100%; max-height: 100%; object-fit: contain; touch-action: none; cursor: crosshair;
-        }
-
-        /* Panel Derecho: Controles y Tablas */
-        .panel-derecho { 
-            flex: 1; padding: 20px; background: var(--panel-bg); overflow-y: auto; 
-            display: flex; flex-direction: column; gap: 20px; border-top: 1px solid var(--border-color);
-        }
-
-        /* Caja de instrucciones */
-        #info { 
-            background: #2c2c2e; padding: 15px; border-radius: 8px; font-size: 15px; 
-            border-left: 4px solid var(--accent); line-height: 1.4; font-weight: 300;
-        }
-
-        /* Botones */
-        .controles { display: flex; gap: 10px; width: 100%; }
-        button { 
-            flex: 1; padding: 14px 10px; font-size: 16px; font-weight: 500; 
-            border-radius: 8px; border: none; cursor: pointer; transition: 0.2s;
-        }
+        :root { --bg-color: #2b2b2d; --panel-bg: #1c1c1e; --text-main: #f5f5f7; --accent: #ffd60a; --border-color: #38383a; }
+        body { font-family: -apple-system, sans-serif; margin: 0; padding: 0; background-color: var(--bg-color); color: var(--text-main); user-select: none; overflow: hidden; }
+        .header { padding: 15px; font-size: 18px; border-bottom: 1px solid var(--border-color); background: var(--bg-color); display: flex; justify-content: space-between;}
+        .main-container { display: flex; flex-direction: column; height: calc(100vh - 50px); }
+        .panel-izquierdo { flex: 1.2; display: flex; justify-content: center; align-items: center; background: #000; position: relative; overflow: hidden; }
+        video, canvas { max-width: 100%; max-height: 100%; object-fit: contain; touch-action: none; }
+        .panel-derecho { flex: 1; padding: 15px; background: var(--panel-bg); overflow-y: auto; display: flex; flex-direction: column; gap: 15px; }
+        
+        #info { background: #2c2c2e; padding: 12px; border-radius: 8px; font-size: 14px; border-left: 4px solid var(--accent); line-height: 1.4; }
+        
+        .controles { display: flex; gap: 10px; width: 100%; flex-wrap: wrap; }
+        button { flex: 1; padding: 14px 10px; font-size: 16px; font-weight: bold; border-radius: 8px; border: none; cursor: pointer; min-width: 120px; transition: background 0.3s;}
         .btn-primario { background-color: #007aff; color: white; }
-        .btn-primario:active { background-color: #005bb5; }
+        .btn-accion { background-color: var(--accent); color: #000; display: none; }
         .btn-secundario { background-color: #3a3a3c; color: white; display: none; }
+        .btn-linterna { background-color: #3a3a3c; color: white; display: none; }
+        .btn-linterna.activa { background-color: var(--text-main); color: #000; }
 
-        /* Estilo de Tabla estilo Zeiss */
         .seccion-datos { display: none; }
-        h3 { margin: 0 0 10px 0; font-weight: 400; font-size: 18px; color: var(--text-main); }
-        table { width: 100%; border-collapse: collapse; font-size: 15px; }
-        th, td { padding: 10px 5px; text-align: center; border-bottom: 1px solid var(--border-color); }
-        th { color: var(--text-muted); font-weight: 400; font-size: 13px; text-align: right; }
-        td:first-child { text-align: left; color: var(--text-muted); font-weight: 500; width: 30%; }
-        td { text-align: right; }
-        tr:last-child td { border-bottom: none; }
-        .fila-total { border-top: 1px solid var(--text-muted); }
-
-        /* MAGIA RESPONSIVE: Si giras el teléfono a horizontal (Landscape) */
+        table { width: 100%; border-collapse: collapse; font-size: 14px; margin-bottom: 15px;}
+        th, td { padding: 8px 5px; text-align: center; border-bottom: 1px solid var(--border-color); }
+        th { color: #86868b; font-weight: normal; font-size: 12px; }
+        td:first-child { text-align: left; color: #86868b; font-weight: bold; width: 25%; }
+        tr.total td { border-top: 1px solid #86868b; font-weight: bold; color: white; }
+        
         @media (min-width: 600px) and (orientation: landscape) {
             .main-container { flex-direction: row; }
             .panel-izquierdo { flex: 1.5; border-right: 1px solid var(--border-color); }
-            .panel-derecho { flex: 1; border-top: none; }
+            .panel-derecho { flex: 1; }
         }
     </style>
 </head>
 <body>
 
-<div class="header">i.Terminal Prototipo</div>
+<div class="header">
+    <span>i.Terminal Pro</span>
+    <span id="faseTitulo" style="color: var(--accent);">Fase 0: Foto</span>
+</div>
 
 <div class="main-container">
-    <!-- PANEL IZQUIERDO -->
     <div class="panel-izquierdo">
         <video id="video" autoplay playsinline muted></video>
         <canvas id="canvas" style="display:none;"></canvas>
     </div>
 
-    <!-- PANEL DERECHO -->
     <div class="panel-derecho">
+        <div id="info">Coloca la montura y la tarjeta. Presiona Iniciar Cámara.</div>
+        
         <div class="controles">
             <button id="btnIniciar" class="btn-primario">Iniciar Cámara</button>
-            <button id="btnCapturar" class="btn-primario" style="display:none;">Congelar Imagen</button>
+            <button id="btnLinterna" class="btn-linterna">🔦 Linterna</button>
+            <button id="btnCapturar" class="btn-primario" style="display:none;">Tomar Foto</button>
+            
+            <button id="btnAvanzar" class="btn-accion">Siguiente Fase ➔</button>
             <button id="btnReiniciar" class="btn-secundario">Rehacer</button>
         </div>
 
-        <div id="info">Coloca la tarjeta de calibración frontal. Toca "Iniciar Cámara".</div>
-
-        <!-- Tabla de Datos (Estilo Zeiss) -->
         <div class="seccion-datos" id="seccionDatos">
-            <h3>Datos de centrado</h3>
             <table>
-                <thead>
-                    <tr>
-                        <th></th>
-                        <th>DP</th>
-                        <th>Altura seg.</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>D</td> <!-- Derecho -->
-                        <td id="dpDer">-</td>
-                        <td id="altDer">-</td>
-                    </tr>
-                    <tr>
-                        <td>I</td> <!-- Izquierdo -->
-                        <td id="dpIzq">-</td>
-                        <td id="altIzq">-</td>
-                    </tr>
-                    <tr class="fila-total">
-                        <td>Total</td>
-                        <td id="dpTotal">-</td>
-                        <td>-</td>
-                    </tr>
-                </tbody>
+                <tr><th>Centrado</th><th>DP</th><th>Altura</th></tr>
+                <tr><td>OD (Der)</td><td id="dpDer">-</td><td id="altDer">-</td></tr>
+                <tr><td>OI (Izq)</td><td id="dpIzq">-</td><td id="altIzq">-</td></tr>
+                <tr class="total"><td>Total</td><td id="dpTotal">-</td><td>-</td></tr>
+            </table>
+            <table>
+                <tr><th>Montura</th><th>A</th><th>B</th><th>Puente</th><th>Diámetro</th></tr>
+                <tr><td>OD</td><td id="aDer">-</td><td id="bDer">-</td><td rowspan="2" id="puente" style="vertical-align: middle;">-</td><td id="diamDer">-</td></tr>
+                <tr><td>OI</td><td id="aIzq">-</td><td id="bIzq">-</td><td id="diamIzq">-</td></tr>
             </table>
         </div>
     </div>
@@ -140,209 +82,235 @@
     const video = document.getElementById('video');
     const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d');
+    const info = document.getElementById('info');
+    const faseTitulo = document.getElementById('faseTitulo');
+    const seccionDatos = document.getElementById('seccionDatos');
+
     const btnIniciar = document.getElementById('btnIniciar');
     const btnCapturar = document.getElementById('btnCapturar');
+    const btnLinterna = document.getElementById('btnLinterna');
+    const btnAvanzar = document.getElementById('btnAvanzar');
     const btnReiniciar = document.getElementById('btnReiniciar');
-    const info = document.getElementById('info');
-    const seccionDatos = document.getElementById('seccionDatos');
 
     const canvasFoto = document.createElement('canvas');
     const ctxFoto = canvasFoto.getContext('2d');
 
+    const COLOR_ZEISS = "#ffd60a";
+    const COLOR_TARJETA = "#0a84ff"; 
     const TAMANO_TARJETA_MM = 85.6; 
     let factorEscala = 0; 
-
-    // CONFIGURACIÓN VISUAL
-    const COLOR_ZEISS = "#ffd60a"; // Amarillo
-
-    let marcas = {}; 
-    let ordenPasos = ['tarjetaIzq', 'tarjetaDer', 'nariz', 'pupilaDer', 'pupilaIzq', 'baseDer', 'baseIzq'];
-    let descripciones = [
-        "Calibración: Borde IZQ de la tarjeta.",
-        "Calibración: Borde DER de la tarjeta.",
-        "Toque el centro del puente nasal.",
-        "Toque la pupila DERECHA (D).",
-        "Toque la pupila IZQUIERDA (I).",
-        "Toque la altura del aro DERECHO.",
-        "Toque la altura del aro IZQUIERDO."
-    ];
-    let pasoActual = 0;
     
-    let nodoArrastrado = null; 
-    let editando = false; 
-    let dragOffsetX = 0;
-    let dragOffsetY = 0;
+    let fase = "inicio"; 
+    let marcas = {}; 
+    let nodoArrastrado = null;
+    let dragOffset = {x: 0, y: 0};
 
+    // Variables para la Linterna
+    let videoTrack = null;
+    let linternaEncendida = false;
+
+    // ====== CONTROL DE CÁMARA Y LINTERNA ======
     btnIniciar.addEventListener('click', async () => {
         try {
             const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
-            video.srcObject = stream;
+            video.srcObject = stream; 
             await video.play(); 
-            btnIniciar.style.display = 'none';
+            
+            // Lógica para detectar si el celular tiene Flash LED disponible
+            videoTrack = stream.getVideoTracks()[0];
+            const imageCapture = new ImageCapture(videoTrack);
+            
+            imageCapture.getPhotoCapabilities().then(() => {
+                // Si llegamos aquí, el navegador soporta las opciones avanzadas de cámara
+                btnLinterna.style.display = 'block';
+            }).catch(err => {
+                console.log("El dispositivo no permite acceder a la linterna por web.", err);
+            });
+
+            btnIniciar.style.display = 'none'; 
             btnCapturar.style.display = 'block';
-            info.innerHTML = "Alinee al paciente. Asegure visibilidad del armazón.<br><br>Presione <b>Congelar Imagen</b>.";
-        } catch (err) { 
-            alert("No se pudo abrir la cámara. Motivo: " + err.message); 
-            info.innerHTML = "❌ Error de cámara.";
+            info.innerHTML = "Enciende la linterna para ver el <b>reflejo corneal</b> y presiona <b>Tomar Foto</b>.";
+        } catch (err) { alert("Error de cámara: " + err.message); }
+    });
+
+    btnLinterna.addEventListener('click', async () => {
+        if (!videoTrack) return;
+        linternaEncendida = !linternaEncendida;
+        try {
+            await videoTrack.applyConstraints({
+                advanced: [{ torch: linternaEncendida }]
+            });
+            // Cambiamos el estilo del botón cuando se enciende
+            if (linternaEncendida) {
+                btnLinterna.classList.add('activa');
+                btnLinterna.innerText = "🔦 Apagar";
+            } else {
+                btnLinterna.classList.remove('activa');
+                btnLinterna.innerText = "🔦 Linterna";
+            }
+        } catch (err) {
+            alert("No se pudo activar la linterna en este dispositivo.");
+            linternaEncendida = false;
         }
     });
 
-    btnCapturar.addEventListener('click', () => {
-        canvas.width = video.videoWidth;
-        canvas.height = video.videoHeight;
-        
-        canvasFoto.width = canvas.width;
-        canvasFoto.height = canvas.height;
+    btnCapturar.addEventListener('click', async () => {
+        canvas.width = video.videoWidth; canvas.height = video.videoHeight;
+        canvasFoto.width = canvas.width; canvasFoto.height = canvas.height;
         ctxFoto.drawImage(video, 0, 0, canvas.width, canvas.height);
         
-        video.style.display = 'none';
-        canvas.style.display = 'block';
-        btnCapturar.style.display = 'none';
+        // Apagamos la linterna automáticamente tras tomar la foto
+        if (linternaEncendida && videoTrack) {
+            try { await videoTrack.applyConstraints({ advanced: [{ torch: false }] }); } catch(e){}
+            linternaEncendida = false;
+        }
+
+        video.style.display = 'none'; canvas.style.display = 'block';
+        btnCapturar.style.display = 'none'; 
+        btnLinterna.style.display = 'none'; // Ocultamos el botón
         btnReiniciar.style.display = 'block';
         
-        marcas = {}; pasoActual = 0; editando = false;
-        seccionDatos.style.display = 'none';
-        info.innerHTML = `Paso ${pasoActual + 1}: <b>${descripciones[pasoActual]}</b>`;
-        dibujarTodo(); 
+        iniciarFaseCalibracion();
     });
 
-    btnReiniciar.addEventListener('click', () => {
-        video.style.display = 'block'; canvas.style.display = 'none';
-        btnCapturar.style.display = 'block'; btnReiniciar.style.display = 'none';
-        seccionDatos.style.display = 'none'; info.innerHTML = "Alinee al paciente y tome la foto.";
-    });
+    btnReiniciar.addEventListener('click', () => { location.reload(); });
 
-    // =============== MOTOR DE RENDERIZADO (ESTILO ZEISS) ===============
+    // ====== RESTO DEL CÓDIGO (FASES, DIBUJO, DRAG & DROP) ======
+    
+    function iniciarFaseCalibracion() {
+        fase = "calibracion"; faseTitulo.innerText = "Fase 1: Calibración";
+        info.innerHTML = "Arrastra los <b>puntos azules</b> a los extremos izquierdo y derecho de la tarjeta.";
+        let w = canvas.width, h = canvas.height;
+        marcas = { tarjetaIzq: { x: w*0.35, y: h*0.25 }, tarjetaDer: { x: w*0.65, y: h*0.25 } };
+        btnAvanzar.style.display = "block"; btnAvanzar.innerText = "Siguiente: Montura ➔";
+        dibujarTodo();
+    }
+
+    function iniciarFaseMontura() {
+        fase = "montura"; faseTitulo.innerText = "Fase 2: Sistema Boxing";
+        info.innerHTML = "Arrastra las esquinas amarillas para <b>enmarcar los aros</b> (Lente Derecho e Izquierdo).";
+        factorEscala = TAMANO_TARJETA_MM / Math.hypot(marcas.tarjetaDer.x - marcas.tarjetaIzq.x, marcas.tarjetaDer.y - marcas.tarjetaIzq.y);
+        let w = canvas.width, h = canvas.height;
+        marcas = {
+            odTL: {x: w*0.3, y: h*0.4}, odBR: {x: w*0.45, y: h*0.55}, 
+            oiTL: {x: w*0.55, y: h*0.4}, oiBR: {x: w*0.7, y: h*0.55}  
+        };
+        btnAvanzar.innerText = "Siguiente: Pupilas ➔"; dibujarTodo();
+    }
+
+    function iniciarFasePupilas() {
+        fase = "pupilas"; faseTitulo.innerText = "Fase 3: Centrado";
+        info.innerHTML = "Arrastra los botones inferiores (✥) para alinear la cruz con el <b>reflejo corneal</b> brillante.";
+        marcas.pupDer = { x: (marcas.odTL.x + marcas.odBR.x)/2, y: (marcas.odTL.y + marcas.odBR.y)/2 };
+        marcas.pupIzq = { x: (marcas.oiTL.x + marcas.oiBR.x)/2, y: (marcas.oiTL.y + marcas.oiBR.y)/2 };
+        btnAvanzar.innerText = "Calcular Resultados ✓"; dibujarTodo();
+    }
+
+    btnAvanzar.addEventListener('click', () => {
+        if(fase === "calibracion") iniciarFaseMontura();
+        else if(fase === "montura") iniciarFasePupilas();
+        else if(fase === "pupilas") calcularResultados();
+    });
 
     function dibujarTodo() {
         if(!canvasFoto.width) return;
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        ctx.drawImage(canvasFoto, 0, 0);
+        ctx.clearRect(0, 0, canvas.width, canvas.height); ctx.drawImage(canvasFoto, 0, 0);
 
-        // Líneas geométricas delgadas amarillas
-        if (marcas.tarjetaIzq && marcas.tarjetaDer) dibujarLinea(marcas.tarjetaIzq, marcas.tarjetaDer, COLOR_ZEISS);
-        if (marcas.nariz) dibujarLinea({x: marcas.nariz.x, y: 0}, {x: marcas.nariz.x, y: canvas.height}, COLOR_ZEISS, true);
-        if (marcas.nariz && marcas.pupilaDer) dibujarLinea(marcas.pupilaDer, {x: marcas.nariz.x, y: marcas.pupilaDer.y}, COLOR_ZEISS);
-        if (marcas.nariz && marcas.pupilaIzq) dibujarLinea(marcas.pupilaIzq, {x: marcas.nariz.x, y: marcas.pupilaIzq.y}, COLOR_ZEISS);
-        if (marcas.pupilaDer && marcas.baseDer) dibujarLinea(marcas.pupilaDer, {x: marcas.pupilaDer.x, y: marcas.baseDer.y}, COLOR_ZEISS, true);
-        if (marcas.pupilaIzq && marcas.baseIzq) dibujarLinea(marcas.pupilaIzq, {x: marcas.pupilaIzq.x, y: marcas.baseIzq.y}, COLOR_ZEISS, true);
+        if(fase === "calibracion") {
+            ctx.beginPath(); ctx.moveTo(marcas.tarjetaIzq.x, marcas.tarjetaIzq.y); ctx.lineTo(marcas.tarjetaDer.x, marcas.tarjetaDer.y);
+            ctx.strokeStyle = COLOR_TARJETA; ctx.lineWidth = 3; ctx.stroke();
+            dibujarPunto(marcas.tarjetaIzq.x, marcas.tarjetaIzq.y, COLOR_TARJETA); dibujarPunto(marcas.tarjetaDer.x, marcas.tarjetaDer.y, COLOR_TARJETA);
+        }
 
-        for (let key in marcas) dibujarMira(marcas[key].x, marcas[key].y);
-    }
+        if(fase === "montura" || fase === "pupilas" || fase === "resultados") {
+            dibujarCaja(marcas.odTL, marcas.odBR, fase === "montura"); dibujarCaja(marcas.oiTL, marcas.oiBR, fase === "montura");
+        }
 
-    function dibujarLinea(p1, p2, color, punteada = false) {
-        ctx.strokeStyle = "rgba(0,0,0,0.5)"; ctx.lineWidth = 3; // Sombra negra
-        ctx.beginPath(); ctx.moveTo(p1.x, p1.y); ctx.lineTo(p2.x, p2.y); ctx.stroke();
-        
-        ctx.strokeStyle = color; ctx.lineWidth = 1.5; // Línea amarilla fina
-        if(punteada) ctx.setLineDash([4, 4]); else ctx.setLineDash([]);
-        ctx.beginPath(); ctx.moveTo(p1.x, p1.y); ctx.lineTo(p2.x, p2.y); ctx.stroke();
-        ctx.setLineDash([]);
-    }
-
-    function dibujarMira(x, y) {
-        // Sombra negra para contraste
-        ctx.strokeStyle = "rgba(0,0,0,0.6)"; ctx.lineWidth = 4;
-        ctx.beginPath(); ctx.arc(x, y, 14, 0, Math.PI * 2); ctx.stroke();
-        
-        // Círculo amarillo
-        ctx.strokeStyle = COLOR_ZEISS; ctx.lineWidth = 2;
-        ctx.beginPath(); ctx.arc(x, y, 14, 0, Math.PI * 2); ctx.stroke();
-
-        // Cruz interior extendida
-        ctx.beginPath();
-        ctx.moveTo(x - 22, y); ctx.lineTo(x + 22, y);
-        ctx.moveTo(x, y - 22); ctx.lineTo(x, y + 22);
-        ctx.stroke();
-
-        // Puntito central amarillo
-        ctx.fillStyle = COLOR_ZEISS;
-        ctx.beginPath(); ctx.arc(x, y, 2, 0, Math.PI * 2); ctx.fill();
-
-        // Joysticks
-        if (editando) {
-            const offsetY = canvas.width * 0.08; 
-            ctx.setLineDash([4, 4]); ctx.lineWidth = 1; ctx.strokeStyle = COLOR_ZEISS;
-            ctx.beginPath(); ctx.moveTo(x, y + 22); ctx.lineTo(x, y + offsetY - 20); ctx.stroke(); ctx.setLineDash([]);
-
-            let joyY = y + offsetY;
-            ctx.fillStyle = "rgba(28, 28, 30, 0.85)"; ctx.beginPath(); ctx.arc(x, joyY, 24, 0, Math.PI * 2); ctx.fill();
-            ctx.strokeStyle = COLOR_ZEISS; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.arc(x, joyY, 24, 0, Math.PI * 2); ctx.stroke();
-            
-            ctx.fillStyle = COLOR_ZEISS; ctx.font = "20px Arial"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
-            ctx.fillText("✥", x, joyY);
+        if(fase === "pupilas" || fase === "resultados") {
+            dibujarMiraConJoystick(marcas.pupDer.x, marcas.pupDer.y, fase === "pupilas"); dibujarMiraConJoystick(marcas.pupIzq.x, marcas.pupIzq.y, fase === "pupilas");
         }
     }
 
-    // =============== CÁLCULOS ===============
-
-    function calcularMedidas() {
-        if (!marcas.tarjetaIzq || !marcas.tarjetaDer || !marcas.nariz || !marcas.pupilaDer || !marcas.pupilaIzq || !marcas.baseDer || !marcas.baseIzq) return;
-
-        const dxT = marcas.tarjetaDer.x - marcas.tarjetaIzq.x;
-        const dyT = marcas.tarjetaDer.y - marcas.tarjetaIzq.y;
-        factorEscala = TAMANO_TARJETA_MM / Math.sqrt(dxT * dxT + dyT * dyT);
-
-        const dpDerMM = Math.abs(marcas.pupilaDer.x - marcas.nariz.x) * factorEscala;
-        const dpIzqMM = Math.abs(marcas.pupilaIzq.x - marcas.nariz.x) * factorEscala;
-        const altDerMM = Math.abs(marcas.baseDer.y - marcas.pupilaDer.y) * factorEscala;
-        const altIzqMM = Math.abs(marcas.baseIzq.y - marcas.pupilaIzq.y) * factorEscala;
-
-        // Actualizar Tabla estilo Zeiss
-        document.getElementById('dpDer').innerText = dpDerMM.toFixed(1);
-        document.getElementById('dpIzq').innerText = dpIzqMM.toFixed(1);
-        document.getElementById('altDer').innerText = altDerMM.toFixed(1);
-        document.getElementById('altIzq').innerText = altIzqMM.toFixed(1);
-        document.getElementById('dpTotal').innerText = (dpDerMM + dpIzqMM).toFixed(1);
-
-        seccionDatos.style.display = 'block';
-        info.innerHTML = "<b>Modo Edición:</b> Arrastre los cursores inferiores (✥) para ajustar con precisión fina.";
+    function dibujarPunto(x, y, color) {
+        ctx.fillStyle = "rgba(0,0,0,0.4)"; ctx.beginPath(); ctx.arc(x, y, 18, 0, Math.PI*2); ctx.fill(); 
+        ctx.fillStyle = color; ctx.beginPath(); ctx.arc(x, y, 8, 0, Math.PI*2); ctx.fill();
+        ctx.strokeStyle = "white"; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(x, y, 8, 0, Math.PI*2); ctx.stroke();
     }
 
-    // =============== CONTROLES ===============
-
-    function obtenerCoordenadas(evento) {
-        const rect = canvas.getBoundingClientRect();
-        const ratioX = canvas.width / rect.width; 
-        return {
-            x: (evento.clientX - rect.left) * ratioX,
-            y: (evento.clientY - rect.top) * (canvas.height / rect.height),
-            ratio: ratioX 
-        };
+    function dibujarCaja(pTL, pBR, interactiva) {
+        let x = Math.min(pTL.x, pBR.x), y = Math.min(pTL.y, pBR.y);
+        let w = Math.abs(pBR.x - pTL.x), h = Math.abs(pBR.y - pTL.y);
+        ctx.strokeStyle = COLOR_ZEISS; ctx.lineWidth = 2; ctx.strokeRect(x, y, w, h);
+        if(interactiva) { dibujarPunto(pTL.x, pTL.y, COLOR_ZEISS); dibujarPunto(pBR.x, pBR.y, COLOR_ZEISS); }
     }
 
-    canvas.addEventListener('pointerdown', (evento) => {
-        evento.preventDefault(); canvas.setPointerCapture(evento.pointerId); 
-        const pos = obtenerCoordenadas(evento);
-        const radioSeguro = 60 * pos.ratio; 
-
-        if (editando) {
+    function dibujarMiraConJoystick(x, y, interactivo) {
+        ctx.strokeStyle = "rgba(0,0,0,0.6)"; ctx.lineWidth = 4; ctx.beginPath(); ctx.arc(x, y, 14, 0, Math.PI*2); ctx.stroke();
+        ctx.strokeStyle = COLOR_ZEISS; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(x, y, 14, 0, Math.PI*2); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(x-22, y); ctx.lineTo(x+22, y); ctx.moveTo(x, y-22); ctx.lineTo(x, y+22); ctx.stroke();
+        if (interactivo) {
             const offsetY = canvas.width * 0.08; 
-            for (let key in marcas) {
-                let jX = marcas[key].x; let jY = marcas[key].y + offsetY;
-                if (Math.hypot(jX - pos.x, jY - pos.y) < radioSeguro || Math.hypot(marcas[key].x - pos.x, marcas[key].y - pos.y) < radioSeguro) {
-                    nodoArrastrado = key;
-                    dragOffsetX = pos.x - marcas[key].x; dragOffsetY = pos.y - marcas[key].y;
-                    return; 
-                }
+            ctx.setLineDash([4, 4]); ctx.beginPath(); ctx.moveTo(x, y+22); ctx.lineTo(x, y+offsetY-20); ctx.stroke(); ctx.setLineDash([]);
+            let joyY = y + offsetY;
+            ctx.fillStyle = "rgba(28, 28, 30, 0.85)"; ctx.beginPath(); ctx.arc(x, joyY, 24, 0, Math.PI*2); ctx.fill();
+            ctx.strokeStyle = COLOR_ZEISS; ctx.beginPath(); ctx.arc(x, joyY, 24, 0, Math.PI*2); ctx.stroke();
+            ctx.fillStyle = COLOR_ZEISS; ctx.font = "20px Arial"; ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.fillText("✥", x, joyY);
+        }
+    }
+
+    function calcularResultados() {
+        fase = "resultados"; faseTitulo.innerText = "Resultados Finales"; info.innerHTML = "✅ Biometría completada exitosamente.";
+        btnAvanzar.style.display = "none"; dibujarTodo(); 
+
+        let aDer = Math.abs(marcas.odBR.x - marcas.odTL.x) * factorEscala, bDer = Math.abs(marcas.odBR.y - marcas.odTL.y) * factorEscala;
+        let aIzq = Math.abs(marcas.oiBR.x - marcas.oiTL.x) * factorEscala, bIzq = Math.abs(marcas.oiBR.y - marcas.oiTL.y) * factorEscala;
+
+        let bordeNasalDer = Math.max(marcas.odTL.x, marcas.odBR.x), bordeNasalIzq = Math.min(marcas.oiTL.x, marcas.oiBR.x);
+        let puenteMM = Math.abs(bordeNasalIzq - bordeNasalDer) * factorEscala;
+        let centroPuenteX = bordeNasalDer + ((bordeNasalIzq - bordeNasalDer) / 2);
+
+        let dpDer = Math.abs(marcas.pupDer.x - centroPuenteX) * factorEscala, dpIzq = Math.abs(marcas.pupIzq.x - centroPuenteX) * factorEscala;
+        let altDer = Math.abs(Math.max(marcas.odTL.y, marcas.odBR.y) - marcas.pupDer.y) * factorEscala;
+        let altIzq = Math.abs(Math.max(marcas.oiTL.y, marcas.oiBR.y) - marcas.pupIzq.y) * factorEscala;
+
+        document.getElementById('dpDer').innerText = dpDer.toFixed(1); document.getElementById('dpIzq').innerText = dpIzq.toFixed(1); document.getElementById('dpTotal').innerText = (dpDer + dpIzq).toFixed(1);
+        document.getElementById('altDer').innerText = altDer.toFixed(1); document.getElementById('altIzq').innerText = altIzq.toFixed(1);
+        document.getElementById('aDer').innerText = aDer.toFixed(1); document.getElementById('bDer').innerText = bDer.toFixed(1);
+        document.getElementById('aIzq').innerText = aIzq.toFixed(1); document.getElementById('bIzq').innerText = bIzq.toFixed(1);
+        document.getElementById('puente').innerText = puenteMM.toFixed(1);
+        document.getElementById('diamDer').innerText = Math.ceil(aDer + (2 * Math.abs(((aDer + puenteMM)/2) - dpDer)) + 2); 
+        document.getElementById('diamIzq').innerText = Math.ceil(aIzq + (2 * Math.abs(((aIzq + puenteMM)/2) - dpIzq)) + 2);
+        seccionDatos.style.display = 'block';
+    }
+
+    canvas.addEventListener('pointerdown', (e) => {
+        e.preventDefault(); canvas.setPointerCapture(e.pointerId);
+        const rect = canvas.getBoundingClientRect(); const ratio = canvas.width / rect.width;
+        let x = (e.clientX - rect.left) * ratio, y = (e.clientY - rect.top) * ratio, radio = 50 * ratio;
+
+        if (fase === "calibracion") {
+            for(let key of ['tarjetaIzq', 'tarjetaDer']) {
+                if(Math.hypot(marcas[key].x - x, marcas[key].y - y) < radio) { nodoArrastrado = key; dragOffset = {x: x - marcas[key].x, y: y - marcas[key].y}; break; }
             }
-        } else {
-            if (pasoActual < ordenPasos.length) {
-                marcas[ordenPasos[pasoActual]] = { x: pos.x, y: pos.y };
-                pasoActual++;
-                if (pasoActual < ordenPasos.length) info.innerHTML = `Paso ${pasoActual + 1}: <b>${descripciones[pasoActual]}</b>`;
-                else editando = true; 
-                dibujarTodo(); if (editando) calcularMedidas();
+        } else if (fase === "montura") {
+            for(let key of ['odTL', 'odBR', 'oiTL', 'oiBR']) {
+                if(Math.hypot(marcas[key].x - x, marcas[key].y - y) < radio) { nodoArrastrado = key; dragOffset = {x: x - marcas[key].x, y: y - marcas[key].y}; break; }
+            }
+        } else if (fase === "pupilas") {
+            let offsetY = canvas.width * 0.08;
+            for(let key of ['pupDer', 'pupIzq']) {
+                if(Math.hypot(marcas[key].x - x, (marcas[key].y + offsetY) - y) < radio || Math.hypot(marcas[key].x - x, marcas[key].y - y) < radio) {
+                    nodoArrastrado = key; dragOffset = {x: x - marcas[key].x, y: y - marcas[key].y}; break;
+                }
             }
         }
     });
 
-    canvas.addEventListener('pointermove', (evento) => {
-        if (!nodoArrastrado) return; 
-        evento.preventDefault();
-        const pos = obtenerCoordenadas(evento);
-        marcas[nodoArrastrado].x = pos.x - dragOffsetX; marcas[nodoArrastrado].y = pos.y - dragOffsetY;
-        dibujarTodo(); if (editando) calcularMedidas(); 
+    canvas.addEventListener('pointermove', (e) => {
+        if(!nodoArrastrado) return; e.preventDefault();
+        const rect = canvas.getBoundingClientRect(); const ratio = canvas.width / rect.width;
+        marcas[nodoArrastrado].x = ((e.clientX - rect.left) * ratio) - dragOffset.x; marcas[nodoArrastrado].y = ((e.clientY - rect.top) * ratio) - dragOffset.y;
+        dibujarTodo();
     });
 
     canvas.addEventListener('pointerup', (e) => { nodoArrastrado = null; canvas.releasePointerCapture(e.pointerId); });
