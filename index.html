@@ -364,4 +364,159 @@
                     const imageCapture = new ImageCapture(videoTrack);
                     imageCapture.getPhotoCapabilities().then(() => { btnLinterna.style.display = 'block'; }).catch(()=>{});
                 } else {
-                    const capabilities = videoTrack.getCapabili
+                    const capabilities = videoTrack.getCapabilities();
+                    if(capabilities && capabilities.torch) btnLinterna.style.display = 'block';
+                }
+            } catch (e) { console.warn("Linterna bloqueada"); }
+
+        } catch (err) { alert("Error de cámara"); }
+    }
+
+    function iniciarFaseCalibracionPerfil() {
+        fase = "calibracion_perfil"; faseTitulo.innerText = "Fase 5: Calibración Perfil";
+        info.innerHTML = "Arrastra los <b>puntos azules</b> a los extremos de la tarjeta lateral.";
+        let w = canvas.width, h = canvas.height;
+        marcas = { tarjPerfIzq: { x: w*0.4, y: h*0.7 }, tarjPerfDer: { x: w*0.6, y: h*0.7 } };
+        btnAvanzar.style.display = "block"; btnAvanzar.innerText = "Siguiente: Panto y BVD ➔";
+        dibujarTodo();
+    }
+
+    function iniciarFaseMedicionPerfil() {
+        fase = "medicion_perfil"; faseTitulo.innerText = "Fase 6: Ángulo y Vértice";
+        info.innerHTML = "<b>Amarillos:</b> Borde Superior e Inferior del Aro.<br><b>Verdes:</b> Ápice de Córnea y Cara interna del Lente.";
+        factorEscalaPerfil = TAMANO_TARJETA_MM / Math.hypot(marcas.tarjPerfDer.x - marcas.tarjPerfIzq.x, marcas.tarjPerfDer.y - marcas.tarjPerfIzq.y);
+        
+        let w = canvas.width, h = canvas.height;
+        marcas = {
+            pantoTop: {x: w*0.5, y: h*0.35, color: COLOR_ZEISS},
+            pantoBot: {x: w*0.45, y: h*0.55, color: COLOR_ZEISS},
+            bvdCornea: {x: w*0.4, y: h*0.45, color: COLOR_VERDE},
+            bvdLente: {x: w*0.48, y: h*0.45, color: COLOR_VERDE}
+        };
+        btnAvanzar.innerText = "Calcular Resultados Finales ✓"; dibujarTodo();
+    }
+
+    function calcularResultadosPerfil() {
+        fase = "resultados_finales"; faseTitulo.innerText = "Resultados Finales"; 
+        info.innerHTML = "🎉 <b>¡Biometría completa!</b> (Frontal y Perfil).";
+        btnAvanzar.style.display = "none"; btnNuevaMedicion.style.display = "block"; dibujarTodo(); 
+
+        let dxPanto = Math.abs(marcas.pantoBot.x - marcas.pantoTop.x);
+        let dyPanto = Math.abs(marcas.pantoBot.y - marcas.pantoTop.y);
+        let pantoAngulo = Math.atan(dxPanto / dyPanto) * (180 / Math.PI); 
+
+        let bvdDist = Math.hypot(marcas.bvdCornea.x - marcas.bvdLente.x, marcas.bvdCornea.y - marcas.bvdLente.y) * factorEscalaPerfil;
+
+        document.getElementById('pantoVal').innerText = pantoAngulo.toFixed(1) + "°";
+        document.getElementById('bvdVal').innerText = bvdDist.toFixed(1) + " mm";
+
+        tablaPerfil.style.display = "table";
+        seccionDatos.style.display = "block";
+        
+        setTimeout(() => { document.querySelector('.panel-derecho').scrollTo({ top: document.querySelector('.panel-derecho').scrollHeight, behavior: 'smooth' }); }, 100);
+    }
+
+    // ====== NAVEGACIÓN ======
+    btnAvanzar.addEventListener('click', () => {
+        if(fase === "calibracion") iniciarFaseMontura(); 
+        else if(fase === "montura") iniciarFasePupilas(); 
+        else if(fase === "pupilas") calcularResultadosFrente();
+        else if(fase === "calibracion_perfil") iniciarFaseMedicionPerfil();
+        else if(fase === "medicion_perfil") calcularResultadosPerfil();
+    });
+
+    // ====== DIBUJO ======
+    function dibujarTodo() {
+        if(!canvasFoto.width) return;
+        ctx.clearRect(0, 0, canvas.width, canvas.height); ctx.drawImage(canvasFoto, 0, 0);
+
+        if(fase === "calibracion") {
+            ctx.beginPath(); ctx.moveTo(marcas.tarjetaIzq.x, marcas.tarjetaIzq.y); ctx.lineTo(marcas.tarjetaDer.x, marcas.tarjetaDer.y); ctx.strokeStyle = COLOR_TARJETA; ctx.lineWidth = 3; ctx.stroke();
+            dibujarPunto(marcas.tarjetaIzq.x, marcas.tarjetaIzq.y, COLOR_TARJETA); dibujarPunto(marcas.tarjetaDer.x, marcas.tarjetaDer.y, COLOR_TARJETA);
+        }
+        if(fase === "montura" || fase === "pupilas" || fase === "resultados_frente" || (fase === "resultados_finales" && modoOperacion === "rapida")) {
+            dibujarCaja(marcas.odTL, marcas.odBR, fase === "montura"); dibujarCaja(marcas.oiTL, marcas.oiBR, fase === "montura");
+        }
+        if(fase === "pupilas" || fase === "resultados_frente" || (fase === "resultados_finales" && modoOperacion === "rapida")) {
+            dibujarMiraConJoystick(marcas.pupDer.x, marcas.pupDer.y, fase === "pupilas", COLOR_ZEISS); dibujarMiraConJoystick(marcas.pupIzq.x, marcas.pupIzq.y, fase === "pupilas", COLOR_ZEISS);
+        }
+
+        if(fase === "calibracion_perfil") {
+            ctx.beginPath(); ctx.moveTo(marcas.tarjPerfIzq.x, marcas.tarjPerfIzq.y); ctx.lineTo(marcas.tarjPerfDer.x, marcas.tarjPerfDer.y); ctx.strokeStyle = COLOR_TARJETA; ctx.lineWidth = 3; ctx.stroke();
+            dibujarPunto(marcas.tarjPerfIzq.x, marcas.tarjPerfIzq.y, COLOR_TARJETA); dibujarPunto(marcas.tarjPerfDer.x, marcas.tarjPerfDer.y, COLOR_TARJETA);
+        }
+        if(fase === "medicion_perfil" || (fase === "resultados_finales" && modoOperacion === "completa")) {
+            ctx.beginPath(); ctx.moveTo(marcas.pantoTop.x, marcas.pantoTop.y); ctx.lineTo(marcas.pantoBot.x, marcas.pantoBot.y); ctx.strokeStyle = COLOR_ZEISS; ctx.lineWidth = 3; ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(marcas.bvdCornea.x, marcas.bvdCornea.y); ctx.lineTo(marcas.bvdLente.x, marcas.bvdLente.y); ctx.strokeStyle = COLOR_VERDE; ctx.lineWidth = 3; ctx.stroke();
+            
+            dibujarMiraConJoystick(marcas.pantoTop.x, marcas.pantoTop.y, fase === "medicion_perfil", COLOR_ZEISS);
+            dibujarMiraConJoystick(marcas.pantoBot.x, marcas.pantoBot.y, fase === "medicion_perfil", COLOR_ZEISS);
+            dibujarMiraConJoystick(marcas.bvdCornea.x, marcas.bvdCornea.y, fase === "medicion_perfil", COLOR_VERDE);
+            dibujarMiraConJoystick(marcas.bvdLente.x, marcas.bvdLente.y, fase === "medicion_perfil", COLOR_VERDE);
+        }
+    }
+
+    function dibujarPunto(x, y, color) {
+        ctx.fillStyle = "rgba(0,0,0,0.4)"; ctx.beginPath(); ctx.arc(x, y, 18, 0, Math.PI*2); ctx.fill(); 
+        ctx.fillStyle = color; ctx.beginPath(); ctx.arc(x, y, 8, 0, Math.PI*2); ctx.fill();
+        ctx.strokeStyle = "white"; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(x, y, 8, 0, Math.PI*2); ctx.stroke();
+    }
+
+    function dibujarCaja(pTL, pBR, interactiva) {
+        let x = Math.min(pTL.x, pBR.x), y = Math.min(pTL.y, pBR.y), w = Math.abs(pBR.x - pTL.x), h = Math.abs(pBR.y - pTL.y);
+        ctx.strokeStyle = COLOR_ZEISS; ctx.lineWidth = 2; ctx.strokeRect(x, y, w, h);
+        if(interactiva) { dibujarPunto(pTL.x, pTL.y, COLOR_ZEISS); dibujarPunto(pBR.x, pBR.y, COLOR_ZEISS); }
+    }
+
+    function dibujarMiraConJoystick(x, y, interactivo, color) {
+        ctx.strokeStyle = "rgba(0,0,0,0.6)"; ctx.lineWidth = 4; ctx.beginPath(); ctx.arc(x, y, 14, 0, Math.PI*2); ctx.stroke();
+        ctx.strokeStyle = color; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(x, y, 14, 0, Math.PI*2); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(x-22, y); ctx.lineTo(x+22, y); ctx.moveTo(x, y-22); ctx.lineTo(x, y+22); ctx.stroke();
+        if (interactivo) {
+            const offsetY = canvas.width * 0.08; 
+            ctx.setLineDash([4, 4]); ctx.beginPath(); ctx.moveTo(x, y+22); ctx.lineTo(x, y+offsetY-20); ctx.stroke(); ctx.setLineDash([]);
+            let joyY = y + offsetY;
+            ctx.fillStyle = "rgba(28, 28, 30, 0.85)"; ctx.beginPath(); ctx.arc(x, joyY, 24, 0, Math.PI*2); ctx.fill();
+            ctx.strokeStyle = color; ctx.beginPath(); ctx.arc(x, joyY, 24, 0, Math.PI*2); ctx.stroke();
+            ctx.fillStyle = color; ctx.font = "20px Arial"; ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.fillText("✥", x, joyY);
+        }
+    }
+
+    // ====== EVENTOS TÁCTILES ======
+    canvas.addEventListener('pointerdown', (e) => {
+        e.preventDefault(); canvas.setPointerCapture(e.pointerId);
+        const rect = canvas.getBoundingClientRect(); const ratio = canvas.width / rect.width;
+        let x = (e.clientX - rect.left) * ratio, y = (e.clientY - rect.top) * ratio, radio = 50 * ratio;
+
+        if (fase === "calibracion") {
+            for(let key of ['tarjetaIzq', 'tarjetaDer']) { if(Math.hypot(marcas[key].x - x, marcas[key].y - y) < radio) { nodoArrastrado = key; dragOffset = {x: x - marcas[key].x, y: y - marcas[key].y}; break; } }
+        } else if (fase === "montura") {
+            for(let key of ['odTL', 'odBR', 'oiTL', 'oiBR']) { if(Math.hypot(marcas[key].x - x, marcas[key].y - y) < radio) { nodoArrastrado = key; dragOffset = {x: x - marcas[key].x, y: y - marcas[key].y}; break; } }
+        } else if (fase === "pupilas") {
+            let offsetY = canvas.width * 0.08;
+            for(let key of ['pupDer', 'pupIzq']) { if(Math.hypot(marcas[key].x - x, (marcas[key].y + offsetY) - y) < radio || Math.hypot(marcas[key].x - x, marcas[key].y - y) < radio) { nodoArrastrado = key; dragOffset = {x: x - marcas[key].x, y: y - marcas[key].y}; break; } }
+        } else if (fase === "calibracion_perfil") {
+            for(let key of ['tarjPerfIzq', 'tarjPerfDer']) { if(Math.hypot(marcas[key].x - x, marcas[key].y - y) < radio) { nodoArrastrado = key; dragOffset = {x: x - marcas[key].x, y: y - marcas[key].y}; break; } }
+        } else if (fase === "medicion_perfil") {
+            let offsetY = canvas.width * 0.08;
+            for(let key of ['pantoTop', 'pantoBot', 'bvdCornea', 'bvdLente']) {
+                if(Math.hypot(marcas[key].x - x, (marcas[key].y + offsetY) - y) < radio || Math.hypot(marcas[key].x - x, marcas[key].y - y) < radio) {
+                    nodoArrastrado = key; dragOffset = {x: x - marcas[key].x, y: y - marcas[key].y}; break;
+                }
+            }
+        }
+    });
+
+    canvas.addEventListener('pointermove', (e) => {
+        if(!nodoArrastrado) return; e.preventDefault();
+        const rect = canvas.getBoundingClientRect(); const ratio = canvas.width / rect.width;
+        marcas[nodoArrastrado].x = ((e.clientX - rect.left) * ratio) - dragOffset.x; marcas[nodoArrastrado].y = ((e.clientY - rect.top) * ratio) - dragOffset.y;
+        dibujarTodo();
+    });
+
+    canvas.addEventListener('pointerup', (e) => { nodoArrastrado = null; canvas.releasePointerCapture(e.pointerId); });
+    canvas.addEventListener('pointercancel', (e) => { nodoArrastrado = null; canvas.releasePointerCapture(e.pointerId); });
+
+</script>
+</body>
+</html>
