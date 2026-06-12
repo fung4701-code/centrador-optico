@@ -3,34 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Centrador Pro - Calibración Clínica</title>
+    <title>Centrador Pro - Reportes</title>
     <style>
         :root { --bg-color: #2b2b2d; --panel-bg: #1c1c1e; --text-main: #f5f5f7; --accent: #ffd60a; --border-color: #38383a; --calib-color: #0a84ff;}
-        body { font-family: -apple-system, sans-serif; margin: 0; padding: 0; background-color: var(--bg-color); color: var(--text-main); user-select: none; overflow: hidden; }
+        body { font-family: -apple-system, sans-serif; margin: 0; padding: 0; background-color: var(--bg-color); color: var(--text-main); user-select: none; }
         
         /* Menú Principal */
-        #pantallaMenu {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: var(--bg-color);
-            display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 100; padding: 20px; box-sizing: border-box; text-align: center;
-        }
+        #pantallaMenu { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: var(--bg-color); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 100; padding: 20px; box-sizing: border-box; text-align: center; }
         .logo-app { font-size: 32px; font-weight: bold; margin-bottom: 5px; }
         .logo-app span { color: var(--accent); }
         .sub-logo { color: #86868b; font-size: 16px; margin-bottom: 40px; }
-        .btn-menu {
-            width: 100%; max-width: 350px; padding: 20px; margin-bottom: 15px; border-radius: 12px;
-            font-size: 18px; font-weight: bold; border: none; cursor: pointer; transition: 0.2s;
-            display: flex; flex-direction: column; align-items: center; gap: 8px;
-        }
+        .btn-menu { width: 100%; max-width: 350px; padding: 20px; margin-bottom: 15px; border-radius: 12px; font-size: 18px; font-weight: bold; border: none; cursor: pointer; transition: 0.2s; display: flex; flex-direction: column; align-items: center; gap: 8px; }
         .btn-menu-completo { background-color: #007aff; color: white; }
         .btn-menu-rapido { background-color: #3a3a3c; color: white; }
         .btn-menu span { font-size: 13px; font-weight: normal; opacity: 0.8; }
 
-        .header { padding: 15px; font-size: 18px; border-bottom: 1px solid var(--border-color); background: var(--bg-color); display: flex; justify-content: space-between;}
-        .main-container { display: flex; flex-direction: column; height: calc(100vh - 50px); }
+        .header { padding: 15px; font-size: 18px; border-bottom: 1px solid var(--border-color); background: var(--bg-color); display: flex; justify-content: space-between; position: sticky; top: 0; z-index: 50; }
         
-        .panel-izquierdo { flex: 1.2; display: flex; justify-content: center; align-items: center; background: #000; position: relative; overflow: hidden; }
+        /* ====== SOLUCIÓN AL SCROLL EN CELULARES ====== */
+        .main-container { display: flex; flex-direction: column; min-height: 100vh; }
+        .panel-izquierdo { width: 100%; height: 60vh; display: flex; justify-content: center; align-items: center; background: #000; position: relative; overflow: hidden; flex: none; }
         video, canvas { max-width: 100%; max-height: 100%; object-fit: contain; touch-action: none; }
-        
+        .panel-derecho { width: 100%; padding: 15px; background: var(--panel-bg); display: flex; flex-direction: column; gap: 15px; flex: 1; box-sizing: border-box; overflow: visible; padding-bottom: 50px;}
+        /* ============================================= */
+
         /* HUD */
         .hud-guias { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; display: none; flex-direction: column; justify-content: center; align-items: center; z-index: 10; }
         .hud-oval { width: 55%; max-width: 220px; height: 50%; max-height: 320px; border: 2px dashed rgba(255, 214, 10, 0.6); border-radius: 50% 50% 45% 45% / 60% 60% 40% 40%; position: absolute; transition: all 0.3s; }
@@ -38,7 +34,6 @@
         .hud-linea-v { width: 1px; height: 80%; border-left: 1px dashed rgba(255, 255, 255, 0.3); position: absolute; transition: all 0.3s; }
         .hud-alerta { position: absolute; top: 5%; padding: 8px 15px; background: rgba(0,0,0,0.6); border-radius: 20px; color: var(--accent); font-size: 13px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; text-align: center; }
 
-        .panel-derecho { flex: 1; padding: 15px; background: var(--panel-bg); overflow-y: auto; display: flex; flex-direction: column; gap: 15px; }
         #info { background: #2c2c2e; padding: 12px; border-radius: 8px; font-size: 14px; border-left: 4px solid var(--accent); line-height: 1.4; }
         
         .controles { display: flex; gap: 10px; width: 100%; flex-wrap: wrap; }
@@ -48,12 +43,10 @@
         .btn-secundario { background-color: #3a3a3c; color: white; display: none; }
         .btn-linterna { background-color: #3a3a3c; color: white; display: none; }
         .btn-linterna.activa { background-color: var(--text-main); color: #000; }
+        .btn-descarga { background-color: #ff9f0a; color: white; display: none; } /* Botón Naranja para PDF/PNG */
 
-        /* ====== NUEVO: PANEL DE CALIBRACIÓN ====== */
-        .panel-calibracion {
-            background: #2c2c2e; padding: 15px; border-radius: 8px; border: 1px solid var(--calib-color);
-            display: none; flex-direction: column; gap: 10px;
-        }
+        /* Panel Calibración */
+        .panel-calibracion { background: #2c2c2e; padding: 15px; border-radius: 8px; border: 1px solid var(--calib-color); display: none; flex-direction: column; gap: 10px; }
         .calib-header { display: flex; justify-content: space-between; align-items: center; font-size: 14px; font-weight: bold; }
         .calib-input-group { display: flex; align-items: center; gap: 5px; }
         .calib-input-group input[type="number"] { width: 60px; padding: 5px; border-radius: 5px; border: 1px solid #555; background: #1c1c1e; color: white; text-align: center; font-weight: bold; }
@@ -67,10 +60,12 @@
         td:first-child { text-align: left; color: #86868b; font-weight: bold; width: 25%; }
         tr.total td { border-top: 1px solid #86868b; font-weight: bold; color: white; }
         
+        /* DISEÑO PARA TABLETS / PC (Horizontal) */
         @media (min-width: 600px) and (orientation: landscape) {
-            .main-container { flex-direction: row; }
-            .panel-izquierdo { flex: 1.5; border-right: 1px solid var(--border-color); }
-            .panel-derecho { flex: 1; }
+            body { overflow: hidden; } /* En tablet sí bloqueamos el scroll general */
+            .main-container { flex-direction: row; height: calc(100vh - 55px); min-height: auto;}
+            .panel-izquierdo { flex: 1.5; height: 100%; border-right: 1px solid var(--border-color); }
+            .panel-derecho { flex: 1; height: 100%; overflow-y: auto; padding-bottom: 20px;}
         }
     </style>
 </head>
@@ -115,7 +110,6 @@
         <div class="panel-derecho">
             <div id="info">Preparando cámara...</div>
 
-            <!-- PANEL DE CALIBRACIÓN DINÁMICO -->
             <div id="panelCalibracion" class="panel-calibracion">
                 <div class="calib-header">
                     <span id="lblTipoCalib">Valor Real:</span>
@@ -125,7 +119,7 @@
                     </div>
                 </div>
                 <input type="range" id="sliderCalib" class="calib-slider" min="10" max="300" value="80">
-                <div class="calib-help">Usa la barra para ajustar el ancho del calibrador.</div>
+                <div class="calib-help">Usa la barra para ajustar el calibrador.</div>
             </div>
             
             <div class="controles">
@@ -133,7 +127,8 @@
                 <button id="btnCapturar" class="btn-primario" style="display:none;">Tomar Foto</button>
                 
                 <button id="btnAvanzar" class="btn-accion">Siguiente Fase ➔</button>
-                <button id="btnPerfil" class="btn-primario" style="display:none; background-color: #5e5ce6;">Siguiente: Foto de Perfil ➔</button>
+                <button id="btnPerfil" class="btn-primario" style="display:none; background-color: #5e5ce6;">Siguiente: Perfil ➔</button>
+                <button id="btnDescargar" class="btn-descarga">📥 Descargar Reporte</button>
                 <button id="btnNuevaMedicion" class="btn-primario" style="display:none; background-color: #32d74b;">Nueva Medición</button>
                 <button id="btnReiniciar" class="btn-secundario">Rehacer Fase</button>
             </div>
@@ -151,7 +146,7 @@
                     <tr><td>OI</td><td id="aIzq">-</td><td id="bIzq">-</td><td id="diamIzq">-</td></tr>
                 </table>
                 
-                <table id="tablaPerfil" style="display:none; margin-top: 20px;">
+                <table id="tablaPerfil" style="display:none; margin-top: 15px;">
                     <tr><th>Perfil lateral</th><th>Panto (°)</th><th>Vértice (BVD)</th></tr>
                     <tr><td>Medidas</td><td id="pantoVal" style="color: var(--accent); font-weight: bold;">-</td><td id="bvdVal" style="color: #32d74b; font-weight: bold;">-</td></tr>
                 </table>
@@ -186,29 +181,21 @@
     const btnLinterna = document.getElementById('btnLinterna');
     const btnAvanzar = document.getElementById('btnAvanzar');
     const btnPerfil = document.getElementById('btnPerfil');
+    const btnDescargar = document.getElementById('btnDescargar');
     const btnNuevaMedicion = document.getElementById('btnNuevaMedicion');
     const btnReiniciar = document.getElementById('btnReiniciar');
 
     const canvasFoto = document.createElement('canvas');
     const ctxFoto = canvasFoto.getContext('2d');
 
-    const COLOR_ZEISS = "#ffd60a"; 
-    const COLOR_VERDE = "#32d74b"; 
-    const COLOR_CALIB = "#0a84ff"; 
+    const COLOR_ZEISS = "#ffd60a"; const COLOR_VERDE = "#32d74b"; const COLOR_CALIB = "#0a84ff"; 
     
-    let factorEscala = 0; 
-    let factorEscalaPerfil = 0; 
-    
-    let modoOperacion = "completa"; 
-    let fase = "inicio"; 
-    let marcas = {}; 
-    let nodoArrastrado = null;
-    let dragOffset = {x: 0, y: 0};
+    let factorEscala = 0; let factorEscalaPerfil = 0; 
+    let modoOperacion = "completa"; let fase = "inicio"; 
+    let marcas = {}; let nodoArrastrado = null; let dragOffset = {x: 0, y: 0};
+    let videoTrack = null; let linternaEncendida = false;
 
-    let videoTrack = null;
-    let linternaEncendida = false;
-
-    // ====== EVENTOS DEL MENÚ ======
+    // ====== MENÚ ======
     document.getElementById('btnModoCompleto').addEventListener('click', () => { modoOperacion = "completa"; iniciarApp(); });
     document.getElementById('btnModoRapido').addEventListener('click', () => { modoOperacion = "rapida"; iniciarApp(); });
 
@@ -216,7 +203,7 @@
         pantallaMenu.style.display = 'none'; pantallaApp.style.display = 'block'; encenderCamaraFrontal();
     }
 
-    // ====== CONTROL DE CÁMARA ======
+    // ====== CÁMARA ======
     async function encenderCamaraFrontal() {
         try {
             const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment", width: { ideal: 1920 } } });
@@ -254,8 +241,7 @@
         video.style.display = 'none'; canvas.style.display = 'block';
         btnCapturar.style.display = 'none'; btnLinterna.style.display = 'none'; btnReiniciar.style.display = 'block';
         
-        if(fase === "inicio") iniciarFaseCalibracion();
-        else if(fase === "inicio_perfil") iniciarFaseCalibracionPerfil();
+        if(fase === "inicio") iniciarFaseCalibracion(); else if(fase === "inicio_perfil") iniciarFaseCalibracionPerfil();
     });
 
     btnNuevaMedicion.addEventListener('click', () => { location.reload(); });
@@ -263,13 +249,13 @@
         if(fase.includes("perfil")) { encenderCamaraPerfil(); } 
         else { 
             canvas.style.display = 'none'; video.style.display = 'block'; panelCalibracion.style.display = 'none';
-            btnCapturar.style.display = 'block'; btnReiniciar.style.display = 'none'; btnAvanzar.style.display = 'none'; 
+            btnCapturar.style.display = 'block'; btnReiniciar.style.display = 'none'; btnAvanzar.style.display = 'none'; btnDescarga.style.display = 'none';
             hud.style.display = 'flex'; fase = "inicio"; info.innerHTML = "Reencuadre al paciente y tome la foto nuevamente."; 
-            if(videoTrack) { try { if (typeof ImageCapture !== 'undefined') { btnLinterna.style.display = 'block'; } else if (videoTrack.getCapabilities().torch) { btnLinterna.style.display = 'block'; } } catch(e){} }
+            if(videoTrack) { try { if (typeof ImageCapture !== 'undefined' || videoTrack.getCapabilities().torch) { btnLinterna.style.display = 'block'; } } catch(e){} }
         }
     });
 
-    // ====== CONTROLES DE CALIBRACIÓN DINÁMICA ======
+    // ====== CALIBRACIÓN DINÁMICA ======
     sliderCalib.addEventListener('input', (e) => {
         let val = parseInt(e.target.value);
         if(fase === "calibracion") marcas.calibFrente.width = val;
@@ -280,54 +266,35 @@
     // ====== FASES FRENTE ======
     function iniciarFaseCalibracion() {
         fase = "calibracion"; faseTitulo.innerText = "Fase 1: Calibrador Iris (DHIV)";
-        info.innerHTML = "Mueve el <b>joystick</b> para centrarlo en el ojo. Usa la <b>barra</b> para rodear el Iris. Escribe el <b>DHIV real</b> arriba.";
-        
-        // Configuramos Panel
-        panelCalibracion.style.display = 'flex';
-        lblTipoCalib.innerText = "Medida DHIV (Iris):";
-        inputCalibReal.value = "11.5"; // Promedio
-        sliderCalib.value = 60;
-        sliderCalib.min = 20; sliderCalib.max = 200;
-
-        let w = canvas.width, h = canvas.height;
-        marcas = { calibFrente: { x: w*0.4, y: h*0.4, width: 60 } };
-        
-        btnAvanzar.style.display = "block"; btnAvanzar.innerText = "Siguiente: Montura ➔";
-        dibujarTodo();
+        info.innerHTML = "Mueve el <b>joystick</b> al ojo. Usa la <b>barra</b> para rodear el Iris. Escribe el <b>DHIV real</b>.";
+        panelCalibracion.style.display = 'flex'; lblTipoCalib.innerText = "Medida DHIV (Iris):"; inputCalibReal.value = "11.5"; sliderCalib.value = 60; sliderCalib.min = 20; sliderCalib.max = 200;
+        let w = canvas.width, h = canvas.height; marcas = { calibFrente: { x: w*0.4, y: h*0.4, width: 60 } };
+        btnAvanzar.style.display = "block"; btnAvanzar.innerText = "Siguiente: Montura ➔"; dibujarTodo();
     }
 
     function iniciarFaseMontura() {
-        fase = "montura"; faseTitulo.innerText = "Fase 2: Sistema Boxing";
-        panelCalibracion.style.display = 'none';
+        fase = "montura"; faseTitulo.innerText = "Fase 2: Sistema Boxing"; panelCalibracion.style.display = 'none';
         info.innerHTML = "Arrastra las esquinas amarillas para <b>enmarcar los aros</b>.";
-        
-        // Calcular Escala con HVID
-        let hvidReal = parseFloat(inputCalibReal.value) || 11.5;
-        factorEscala = hvidReal / marcas.calibFrente.width;
-
+        let hvidReal = parseFloat(inputCalibReal.value) || 11.5; factorEscala = hvidReal / marcas.calibFrente.width;
         let w = canvas.width, h = canvas.height;
         marcas = { odTL: {x: w*0.3, y: h*0.35}, odBR: {x: w*0.45, y: h*0.5}, oiTL: {x: w*0.55, y: h*0.35}, oiBR: {x: w*0.7, y: h*0.5} };
         btnAvanzar.innerText = "Siguiente: Pupilas ➔"; dibujarTodo();
     }
 
     function iniciarFasePupilas() {
-        fase = "pupilas"; faseTitulo.innerText = "Fase 3: Centrado";
-        info.innerHTML = "Arrastra los botones inferiores (✥) al <b>reflejo corneal</b>.";
+        fase = "pupilas"; faseTitulo.innerText = "Fase 3: Centrado"; info.innerHTML = "Arrastra los botones inferiores al <b>reflejo corneal</b>.";
         marcas.pupDer = { x: (marcas.odTL.x + marcas.odBR.x)/2, y: (marcas.odTL.y + marcas.odBR.y)/2 };
         marcas.pupIzq = { x: (marcas.oiTL.x + marcas.oiBR.x)/2, y: (marcas.oiTL.y + marcas.oiBR.y)/2 };
         btnAvanzar.innerText = "Calcular Frente ✓"; dibujarTodo();
     }
 
     function calcularResultadosFrente() {
-        fase = "resultados_frente"; faseTitulo.innerText = "Resultados: Frente"; 
-        btnAvanzar.style.display = "none"; 
+        fase = "resultados_frente"; faseTitulo.innerText = "Resultados: Frente"; btnAvanzar.style.display = "none"; 
         
         if(modoOperacion === "completa") {
-            info.innerHTML = "✅ Biometría Frontal lista. Continuemos con el perfil.";
-            btnPerfil.style.display = "block"; 
+            info.innerHTML = "✅ Biometría Frontal lista. Continuemos con el perfil."; btnPerfil.style.display = "block"; btnDescargar.style.display = "block";
         } else {
-            info.innerHTML = "✅ Biometría Rápida finalizada.";
-            btnNuevaMedicion.style.display = "block"; 
+            info.innerHTML = "✅ Biometría Rápida finalizada."; btnNuevaMedicion.style.display = "block"; btnDescargar.style.display = "block";
         }
         dibujarTodo(); 
 
@@ -344,214 +311,4 @@
         document.getElementById('dpDer').innerText = dpDer.toFixed(1); document.getElementById('dpIzq').innerText = dpIzq.toFixed(1); document.getElementById('dpTotal').innerText = (dpDer + dpIzq).toFixed(1);
         document.getElementById('altDer').innerText = altDer.toFixed(1); document.getElementById('altIzq').innerText = altIzq.toFixed(1);
         document.getElementById('aDer').innerText = aDer.toFixed(1); document.getElementById('bDer').innerText = bDer.toFixed(1);
-        document.getElementById('aIzq').innerText = aIzq.toFixed(1); document.getElementById('bIzq').innerText = bIzq.toFixed(1);
-        document.getElementById('puente').innerText = puenteMM.toFixed(1);
-        document.getElementById('diamDer').innerText = Math.ceil(aDer + (2 * Math.abs(((aDer + puenteMM)/2) - dpDer)) + 2); 
-        document.getElementById('diamIzq').innerText = Math.ceil(aIzq + (2 * Math.abs(((aIzq + puenteMM)/2) - dpIzq)) + 2);
         
-        seccionDatos.style.display = 'block';
-    }
-
-    // ====== FASES PERFIL ======
-    btnPerfil.addEventListener('click', () => { encenderCamaraPerfil(); });
-
-    async function encenderCamaraPerfil() {
-        try {
-            const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment", width: { ideal: 1920 } } });
-            video.srcObject = stream; await video.play(); 
-            fase = "inicio_perfil"; faseTitulo.innerText = "Fase 4: Foto de Perfil";
-            
-            canvas.style.display = 'none'; video.style.display = 'block';
-            seccionDatos.style.display = 'none'; btnPerfil.style.display = 'none';
-            btnCapturar.style.display = 'block'; btnReiniciar.style.display = 'none';
-            
-            hud.style.display = 'flex'; hudTexto.innerText = "Rostro de Perfil (90°)";
-            hudOval.style.border = "none"; hudLineH.style.display = "none"; hudLineV.style.borderLeft = "2px dashed var(--accent)"; 
-            
-            info.innerHTML = "Gira al paciente <b>90 grados</b>. Coloque el <b>Sticker Circular</b> lateral y presione Tomar Foto.";
-            try {
-                videoTrack = stream.getVideoTracks()[0];
-                if (typeof ImageCapture !== 'undefined') { const imageCapture = new ImageCapture(videoTrack); imageCapture.getPhotoCapabilities().then(() => { btnLinterna.style.display = 'block'; }).catch(()=>{});
-                } else if (videoTrack.getCapabilities().torch) { btnLinterna.style.display = 'block'; }
-            } catch (e) { }
-        } catch (err) { alert("Error de cámara"); }
-    }
-
-    function iniciarFaseCalibracionPerfil() {
-        fase = "calibracion_perfil"; faseTitulo.innerText = "Fase 5: Calibrador Sticker";
-        info.innerHTML = "Mueve el joystick al centro del <b>Sticker</b>. Usa la barra para ajustar el anillo. Escribe el diámetro arriba.";
-        
-        panelCalibracion.style.display = 'flex';
-        lblTipoCalib.innerText = "Diámetro Sticker:";
-        inputCalibReal.value = "15.0"; 
-        sliderCalib.value = 40;
-        sliderCalib.min = 10; sliderCalib.max = 150;
-
-        let w = canvas.width, h = canvas.height;
-        marcas = { calibPerfil: { x: w*0.5, y: h*0.5, radius: 40 } };
-        btnAvanzar.style.display = "block"; btnAvanzar.innerText = "Siguiente: Panto y BVD ➔";
-        dibujarTodo();
-    }
-
-    function iniciarFaseMedicionPerfil() {
-        fase = "medicion_perfil"; faseTitulo.innerText = "Fase 6: Ángulo y Vértice";
-        panelCalibracion.style.display = 'none';
-        info.innerHTML = "<b>Amarillos:</b> Borde Superior e Inferior del Aro.<br><b>Verdes:</b> Ápice de Córnea y Cara interna del Lente.";
-        
-        let stickerReal = parseFloat(inputCalibReal.value) || 15.0;
-        factorEscalaPerfil = stickerReal / (marcas.calibPerfil.radius * 2); // Diámetro = radio * 2
-        
-        let w = canvas.width, h = canvas.height;
-        marcas = {
-            pantoTop: {x: w*0.5, y: h*0.35, color: COLOR_ZEISS}, pantoBot: {x: w*0.45, y: h*0.55, color: COLOR_ZEISS},
-            bvdCornea: {x: w*0.4, y: h*0.45, color: COLOR_VERDE}, bvdLente: {x: w*0.48, y: h*0.45, color: COLOR_VERDE}
-        };
-        btnAvanzar.innerText = "Calcular Resultados Finales ✓"; dibujarTodo();
-    }
-
-    function calcularResultadosPerfil() {
-        fase = "resultados_finales"; faseTitulo.innerText = "Resultados Finales"; 
-        info.innerHTML = "🎉 <b>¡Biometría completa!</b> (Frontal y Perfil).";
-        btnAvanzar.style.display = "none"; btnNuevaMedicion.style.display = "block"; dibujarTodo(); 
-
-        let dxPanto = Math.abs(marcas.pantoBot.x - marcas.pantoTop.x);
-        let dyPanto = Math.abs(marcas.pantoBot.y - marcas.pantoTop.y);
-        let pantoAngulo = Math.atan(dxPanto / dyPanto) * (180 / Math.PI); 
-
-        let bvdDist = Math.hypot(marcas.bvdCornea.x - marcas.bvdLente.x, marcas.bvdCornea.y - marcas.bvdLente.y) * factorEscalaPerfil;
-
-        document.getElementById('pantoVal').innerText = pantoAngulo.toFixed(1) + "°";
-        document.getElementById('bvdVal').innerText = bvdDist.toFixed(1) + " mm";
-
-        tablaPerfil.style.display = "table"; seccionDatos.style.display = "block";
-        setTimeout(() => { document.querySelector('.panel-derecho').scrollTo({ top: document.querySelector('.panel-derecho').scrollHeight, behavior: 'smooth' }); }, 100);
-    }
-
-    // ====== NAVEGACIÓN ======
-    btnAvanzar.addEventListener('click', () => {
-        if(fase === "calibracion") iniciarFaseMontura(); 
-        else if(fase === "montura") iniciarFasePupilas(); 
-        else if(fase === "pupilas") calcularResultadosFrente();
-        else if(fase === "calibracion_perfil") iniciarFaseMedicionPerfil();
-        else if(fase === "medicion_perfil") calcularResultadosPerfil();
-    });
-
-    // ====== DIBUJO E INTERFAZ ======
-    function dibujarTodo() {
-        if(!canvasFoto.width) return;
-        ctx.clearRect(0, 0, canvas.width, canvas.height); ctx.drawImage(canvasFoto, 0, 0);
-
-        if(fase === "calibracion") dibujarCalibradorHVID(marcas.calibFrente.x, marcas.calibFrente.y, marcas.calibFrente.width);
-        
-        if(fase === "montura" || fase === "pupilas" || fase === "resultados_frente" || (fase === "resultados_finales" && modoOperacion === "rapida")) {
-            dibujarCaja(marcas.odTL, marcas.odBR, fase === "montura"); dibujarCaja(marcas.oiTL, marcas.oiBR, fase === "montura");
-        }
-        if(fase === "pupilas" || fase === "resultados_frente" || (fase === "resultados_finales" && modoOperacion === "rapida")) {
-            dibujarMiraConJoystick(marcas.pupDer.x, marcas.pupDer.y, fase === "pupilas", COLOR_ZEISS); dibujarMiraConJoystick(marcas.pupIzq.x, marcas.pupIzq.y, fase === "pupilas", COLOR_ZEISS);
-        }
-
-        if(fase === "calibracion_perfil") dibujarCalibradorSticker(marcas.calibPerfil.x, marcas.calibPerfil.y, marcas.calibPerfil.radius);
-        
-        if(fase === "medicion_perfil" || (fase === "resultados_finales" && modoOperacion === "completa")) {
-            ctx.beginPath(); ctx.moveTo(marcas.pantoTop.x, marcas.pantoTop.y); ctx.lineTo(marcas.pantoBot.x, marcas.pantoBot.y); ctx.strokeStyle = COLOR_ZEISS; ctx.lineWidth = 3; ctx.stroke();
-            ctx.beginPath(); ctx.moveTo(marcas.bvdCornea.x, marcas.bvdCornea.y); ctx.lineTo(marcas.bvdLente.x, marcas.bvdLente.y); ctx.strokeStyle = COLOR_VERDE; ctx.lineWidth = 3; ctx.stroke();
-            
-            dibujarMiraConJoystick(marcas.pantoTop.x, marcas.pantoTop.y, fase === "medicion_perfil", COLOR_ZEISS);
-            dibujarMiraConJoystick(marcas.pantoBot.x, marcas.pantoBot.y, fase === "medicion_perfil", COLOR_ZEISS);
-            dibujarMiraConJoystick(marcas.bvdCornea.x, marcas.bvdCornea.y, fase === "medicion_perfil", COLOR_VERDE);
-            dibujarMiraConJoystick(marcas.bvdLente.x, marcas.bvdLente.y, fase === "medicion_perfil", COLOR_VERDE);
-        }
-    }
-
-    function dibujarCalibradorHVID(x, y, width) {
-        let hW = width / 2;
-        ctx.strokeStyle = COLOR_CALIB; ctx.lineWidth = 3;
-        // Líneas verticales (limbo)
-        ctx.beginPath(); ctx.moveTo(x - hW, y - 50); ctx.lineTo(x - hW, y + 50); ctx.stroke();
-        ctx.beginPath(); ctx.moveTo(x + hW, y - 50); ctx.lineTo(x + hW, y + 50); ctx.stroke();
-        // Línea horizontal punteada
-        ctx.setLineDash([4, 4]); ctx.beginPath(); ctx.moveTo(x - hW, y); ctx.lineTo(x + hW, y); ctx.stroke(); ctx.setLineDash([]);
-        // Cruz central
-        ctx.beginPath(); ctx.moveTo(x - 5, y); ctx.lineTo(x + 5, y); ctx.moveTo(x, y - 5); ctx.lineTo(x, y + 5); ctx.stroke();
-        
-        dibujarJoystickSolo(x, y, COLOR_CALIB);
-    }
-
-    function dibujarCalibradorSticker(x, y, radius) {
-        ctx.strokeStyle = COLOR_CALIB; ctx.lineWidth = 3;
-        ctx.beginPath(); ctx.arc(x, y, radius, 0, Math.PI*2); ctx.stroke();
-        // Cruz central
-        ctx.beginPath(); ctx.moveTo(x - 10, y); ctx.lineTo(x + 10, y); ctx.moveTo(x, y - 10); ctx.lineTo(x, y + 10); ctx.stroke();
-        
-        dibujarJoystickSolo(x, y, COLOR_CALIB);
-    }
-
-    function dibujarJoystickSolo(x, y, color) {
-        const offsetY = canvas.width * 0.08; 
-        ctx.setLineDash([4, 4]); ctx.strokeStyle = color; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x, y+offsetY-20); ctx.stroke(); ctx.setLineDash([]);
-        let joyY = y + offsetY;
-        ctx.fillStyle = "rgba(28, 28, 30, 0.85)"; ctx.beginPath(); ctx.arc(x, joyY, 24, 0, Math.PI*2); ctx.fill();
-        ctx.strokeStyle = color; ctx.beginPath(); ctx.arc(x, joyY, 24, 0, Math.PI*2); ctx.stroke();
-        ctx.fillStyle = color; ctx.font = "20px Arial"; ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.fillText("✥", x, joyY);
-    }
-
-    function dibujarPunto(x, y, color) {
-        ctx.fillStyle = "rgba(0,0,0,0.4)"; ctx.beginPath(); ctx.arc(x, y, 18, 0, Math.PI*2); ctx.fill(); 
-        ctx.fillStyle = color; ctx.beginPath(); ctx.arc(x, y, 8, 0, Math.PI*2); ctx.fill();
-        ctx.strokeStyle = "white"; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(x, y, 8, 0, Math.PI*2); ctx.stroke();
-    }
-
-    function dibujarCaja(pTL, pBR, interactiva) {
-        let x = Math.min(pTL.x, pBR.x), y = Math.min(pTL.y, pBR.y), w = Math.abs(pBR.x - pTL.x), h = Math.abs(pBR.y - pTL.y);
-        ctx.strokeStyle = COLOR_ZEISS; ctx.lineWidth = 2; ctx.strokeRect(x, y, w, h);
-        if(interactiva) { dibujarPunto(pTL.x, pTL.y, COLOR_ZEISS); dibujarPunto(pBR.x, pBR.y, COLOR_ZEISS); }
-    }
-
-    function dibujarMiraConJoystick(x, y, interactivo, color) {
-        ctx.strokeStyle = "rgba(0,0,0,0.6)"; ctx.lineWidth = 4; ctx.beginPath(); ctx.arc(x, y, 14, 0, Math.PI*2); ctx.stroke();
-        ctx.strokeStyle = color; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(x, y, 14, 0, Math.PI*2); ctx.stroke();
-        ctx.beginPath(); ctx.moveTo(x-22, y); ctx.lineTo(x+22, y); ctx.moveTo(x, y-22); ctx.lineTo(x, y+22); ctx.stroke();
-        if (interactivo) { dibujarJoystickSolo(x, y, color); }
-    }
-
-    // ====== EVENTOS TÁCTILES ======
-    canvas.addEventListener('pointerdown', (e) => {
-        e.preventDefault(); canvas.setPointerCapture(e.pointerId);
-        const rect = canvas.getBoundingClientRect(); const ratio = canvas.width / rect.width;
-        let x = (e.clientX - rect.left) * ratio, y = (e.clientY - rect.top) * ratio, radio = 50 * ratio;
-        let offsetY = canvas.width * 0.08;
-
-        if (fase === "calibracion") {
-            if(Math.hypot(marcas.calibFrente.x - x, (marcas.calibFrente.y + offsetY) - y) < radio || Math.hypot(marcas.calibFrente.x - x, marcas.calibFrente.y - y) < radio) {
-                nodoArrastrado = "calibFrente"; dragOffset = {x: x - marcas.calibFrente.x, y: y - marcas.calibFrente.y};
-            }
-        } else if (fase === "montura") {
-            for(let key of ['odTL', 'odBR', 'oiTL', 'oiBR']) { if(Math.hypot(marcas[key].x - x, marcas[key].y - y) < radio) { nodoArrastrado = key; dragOffset = {x: x - marcas[key].x, y: y - marcas[key].y}; break; } }
-        } else if (fase === "pupilas") {
-            for(let key of ['pupDer', 'pupIzq']) { if(Math.hypot(marcas[key].x - x, (marcas[key].y + offsetY) - y) < radio || Math.hypot(marcas[key].x - x, marcas[key].y - y) < radio) { nodoArrastrado = key; dragOffset = {x: x - marcas[key].x, y: y - marcas[key].y}; break; } }
-        } else if (fase === "calibracion_perfil") {
-            if(Math.hypot(marcas.calibPerfil.x - x, (marcas.calibPerfil.y + offsetY) - y) < radio || Math.hypot(marcas.calibPerfil.x - x, marcas.calibPerfil.y - y) < radio) {
-                nodoArrastrado = "calibPerfil"; dragOffset = {x: x - marcas.calibPerfil.x, y: y - marcas.calibPerfil.y};
-            }
-        } else if (fase === "medicion_perfil") {
-            for(let key of ['pantoTop', 'pantoBot', 'bvdCornea', 'bvdLente']) {
-                if(Math.hypot(marcas[key].x - x, (marcas[key].y + offsetY) - y) < radio || Math.hypot(marcas[key].x - x, marcas[key].y - y) < radio) {
-                    nodoArrastrado = key; dragOffset = {x: x - marcas[key].x, y: y - marcas[key].y}; break;
-                }
-            }
-        }
-    });
-
-    canvas.addEventListener('pointermove', (e) => {
-        if(!nodoArrastrado) return; e.preventDefault();
-        const rect = canvas.getBoundingClientRect(); const ratio = canvas.width / rect.width;
-        marcas[nodoArrastrado].x = ((e.clientX - rect.left) * ratio) - dragOffset.x; marcas[nodoArrastrado].y = ((e.clientY - rect.top) * ratio) - dragOffset.y;
-        dibujarTodo();
-    });
-
-    canvas.addEventListener('pointerup', (e) => { nodoArrastrado = null; canvas.releasePointerCapture(e.pointerId); });
-    canvas.addEventListener('pointercancel', (e) => { nodoArrastrado = null; canvas.releasePointerCapture(e.pointerId); });
-
-</script>
-</body>
-</html>
