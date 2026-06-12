@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Centrador Pro - Estable V2</title>
+    <title>Centrador Pro - Estable Final</title>
     <style>
         :root { --bg-color: #2b2b2d; --panel-bg: #1c1c1e; --text-main: #f5f5f7; --accent: #ffd60a; --border-color: #38383a; --calib-color: #0a84ff;}
         body { font-family: -apple-system, sans-serif; margin: 0; padding: 0; background-color: var(--bg-color); color: var(--text-main); user-select: none; }
@@ -59,7 +59,6 @@
         td:first-child { text-align: left; color: #86868b; font-weight: bold; width: 25%; }
         tr.total td { border-top: 1px solid #86868b; font-weight: bold; color: white; }
         
-        /* TABLETS / PC */
         @media (min-width: 600px) and (orientation: landscape) {
             body { overflow: hidden; } 
             .main-container { flex-direction: row; height: calc(100vh - 55px); min-height: auto;}
@@ -70,17 +69,16 @@
 </head>
 <body>
 
-<!-- PANTALLA MENÚ -->
+<!-- PANTALLA MENÚ (Con los IDs restaurados) -->
 <div id="pantallaMenu">
     <div class="logo-app">i.Terminal <span>Pro</span></div>
     <div class="sub-logo">Biometría Clínica Digital</div>
     
-    <!-- Se añadieron los eventos onclick directamente al HTML para evitar bloqueos de JavaScript -->
-    <button class="btn-menu btn-menu-completo" onclick="iniciarApp('completa')">
+    <button id="btnModoCompleto" class="btn-menu btn-menu-completo">
         Biometría Completa
         <span>Frente + Perfil (Lentes Progresivos)</span>
     </button>
-    <button class="btn-menu btn-menu-rapido" onclick="iniciarApp('rapida')">
+    <button id="btnModoRapido" class="btn-menu btn-menu-rapido">
         Biometría Rápida
         <span>Solo Frente (Visión Sencilla)</span>
     </button>
@@ -123,14 +121,14 @@
             </div>
             
             <div class="controles">
-                <button id="btnLinterna" class="btn-linterna" onclick="toggleLinterna()">🔦 Linterna</button>
-                <button id="btnCapturar" class="btn-primario" style="display:none;" onclick="ejecutarCaptura()">Tomar Foto</button>
+                <button id="btnLinterna" class="btn-linterna">🔦 Linterna</button>
+                <button id="btnCapturar" class="btn-primario" style="display:none;">Tomar Foto</button>
                 
-                <button id="btnAvanzar" class="btn-accion" onclick="avanzarFase()">Siguiente Fase ➔</button>
-                <button id="btnPerfil" class="btn-primario" style="display:none; background-color: #5e5ce6;" onclick="encenderCamaraPerfil()">Siguiente: Perfil ➔</button>
-                <button id="btnDescargar" class="btn-descarga" onclick="descargarReporte()">📥 Descargar Reporte</button>
-                <button id="btnNuevaMedicion" class="btn-primario" style="display:none; background-color: #32d74b;" onclick="location.reload()">Nueva Medición</button>
-                <button id="btnReiniciar" class="btn-secundario" onclick="reiniciarFase()">Rehacer Fase</button>
+                <button id="btnAvanzar" class="btn-accion">Siguiente Fase ➔</button>
+                <button id="btnPerfil" class="btn-primario" style="display:none; background-color: #5e5ce6;">Siguiente: Perfil ➔</button>
+                <button id="btnDescargar" class="btn-descarga">📥 Descargar Reporte</button>
+                <button id="btnNuevaMedicion" class="btn-primario" style="display:none; background-color: #32d74b;">Nueva Medición</button>
+                <button id="btnReiniciar" class="btn-secundario">Rehacer Fase</button>
             </div>
 
             <div class="seccion-datos" id="seccionDatos">
@@ -156,9 +154,9 @@
 </div>
 
 <script>
-    // CAZADOR DE ERRORES: Si algo falla, se mostrará un mensaje de alerta.
+    // Cazador de Errores Ocultos
     window.onerror = function(msg, url, line) {
-        alert("Atención: " + msg + "\nLínea: " + line);
+        alert("Error detectado: " + msg + " (Línea " + line + ")");
         return false;
     };
 
@@ -196,14 +194,15 @@
     let marcas = {}; let nodoArrastrado = null; let dragOffset = {x: 0, y: 0};
     let videoTrack = null; let linternaEncendida = false;
 
-    // ====== INICIO SEGURO DE APP ======
+    // ====== EVENTOS DEL MENÚ (Corregidos) ======
+    document.getElementById('btnModoCompleto').addEventListener('click', () => { iniciarApp('completa'); });
+    document.getElementById('btnModoRapido').addEventListener('click', () => { iniciarApp('rapida'); });
+
     function iniciarApp(modo) {
         modoOperacion = modo;
         pantallaMenu.style.display = 'none'; 
         pantallaApp.style.display = 'block'; 
         info.innerHTML = "Iniciando hardware de cámara...";
-        
-        // Retraso milimétrico para permitir que la interfaz cambie antes de encender la cámara
         setTimeout(encenderCamaraFrontal, 200);
     }
 
@@ -214,7 +213,7 @@
             video.srcObject = stream; 
             
             video.onloadedmetadata = () => {
-                video.play().catch(e => console.warn("Autoplay bloqueado:", e));
+                video.play().catch(e => console.warn(e));
                 hud.style.display = 'flex'; 
                 btnCapturar.style.display = 'block';
                 info.innerHTML = "Alinee el rostro en la <b>silueta punteada</b>. Luego presione Tomar Foto.";
@@ -227,24 +226,24 @@
                 } else if (videoTrack.getCapabilities && videoTrack.getCapabilities().torch) { 
                     btnLinterna.style.display = 'block'; 
                 }
-            } catch (e) { console.log("Linterna no disponible"); }
+            } catch (e) { }
         } catch (err) { 
-            alert("Error: " + err.message + "\n\nRevise que el navegador tenga permisos de cámara."); 
-            info.innerHTML = "❌ Permisos de cámara denegados.";
+            alert("Revise permisos de cámara. \nError: " + err.message); 
+            info.innerHTML = "❌ Permisos denegados.";
         }
     }
 
-    async function toggleLinterna() {
+    btnLinterna.onclick = async () => {
         if (!videoTrack) return;
         linternaEncendida = !linternaEncendida;
         try {
             await videoTrack.applyConstraints({ advanced: [{ torch: linternaEncendida }] });
             if (linternaEncendida) { btnLinterna.classList.add('activa'); btnLinterna.innerText = "🔦 Apagar"; } 
             else { btnLinterna.classList.remove('activa'); btnLinterna.innerText = "🔦 Linterna"; }
-        } catch (err) { alert("Flash no soportado en web para este equipo."); linternaEncendida = false; }
-    }
+        } catch (err) { alert("Flash no soportado."); linternaEncendida = false; }
+    };
 
-    async function ejecutarCaptura() {
+    btnCapturar.onclick = async () => {
         hud.style.display = 'none';
         canvas.width = video.videoWidth; canvas.height = video.videoHeight;
         canvasFoto.width = canvas.width; canvasFoto.height = canvas.height;
@@ -256,9 +255,11 @@
         btnCapturar.style.display = 'none'; btnLinterna.style.display = 'none'; btnReiniciar.style.display = 'block';
         
         if(fase === "inicio") iniciarFaseCalibracion(); else if(fase === "inicio_perfil") iniciarFaseCalibracionPerfil();
-    }
+    };
+
+    btnNuevaMedicion.onclick = () => location.reload();
     
-    function reiniciarFase() { 
+    btnReiniciar.onclick = () => { 
         if(fase.includes("perfil")) { 
             encenderCamaraPerfil(); 
         } else { 
@@ -267,9 +268,8 @@
             hud.style.display = 'flex'; fase = "inicio"; info.innerHTML = "Reencuadre al paciente y tome la foto nuevamente."; 
             if(videoTrack) { try { if (typeof ImageCapture !== 'undefined' || (videoTrack.getCapabilities && videoTrack.getCapabilities().torch)) { btnLinterna.style.display = 'block'; } } catch(e){} }
         }
-    }
+    };
 
-    // ====== CALIBRACIÓN DINÁMICA ======
     sliderCalib.oninput = (e) => {
         let val = parseInt(e.target.value);
         if(fase === "calibracion") marcas.calibFrente.width = val;
@@ -322,4 +322,6 @@
         let altDer = Math.abs(Math.max(marcas.odTL.y, marcas.odBR.y) - marcas.pupDer.y) * factorEscala;
         let altIzq = Math.abs(Math.max(marcas.oiTL.y, marcas.oiBR.y) - marcas.pupIzq.y) * factorEscala;
 
-        document.getElementById('dpDer').innerText = dpDer.toFixed(1); document.getElementById('d
+        document.getElementById('dpDer').innerText = dpDer.toFixed(1); document.getElementById('dpIzq').innerText = dpIzq.toFixed(1); document.getElementById('dpTotal').innerText = (dpDer + dpIzq).toFixed(1);
+        document.getElementById('altDer').innerText = altDer.toFixed(1); document.getElementById('altIzq').innerText = altIzq.toFixed(1);
+        document.getElementById('aDer').innerText = aDer.toFixed(1); document.ge
