@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Centrador Pro - Reportes</title>
+    <title>Centrador Pro - Estable</title>
     <style>
         :root { --bg-color: #2b2b2d; --panel-bg: #1c1c1e; --text-main: #f5f5f7; --accent: #ffd60a; --border-color: #38383a; --calib-color: #0a84ff;}
         body { font-family: -apple-system, sans-serif; margin: 0; padding: 0; background-color: var(--bg-color); color: var(--text-main); user-select: none; }
         
         /* Menú Principal */
-        #pantallaMenu { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: var(--bg-color); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 100; padding: 20px; box-sizing: border-box; text-align: center; }
+        #pantallaMenu { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: var(--bg-color); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 100; padding: 20px; box-sizing: border-box; text-align: center; transition: opacity 0.3s; }
         .logo-app { font-size: 32px; font-weight: bold; margin-bottom: 5px; }
         .logo-app span { color: var(--accent); }
         .sub-logo { color: #86868b; font-size: 16px; margin-bottom: 40px; }
@@ -18,14 +18,12 @@
         .btn-menu-rapido { background-color: #3a3a3c; color: white; }
         .btn-menu span { font-size: 13px; font-weight: normal; opacity: 0.8; }
 
+        /* Contenedores App */
         .header { padding: 15px; font-size: 18px; border-bottom: 1px solid var(--border-color); background: var(--bg-color); display: flex; justify-content: space-between; position: sticky; top: 0; z-index: 50; }
-        
-        /* ====== SOLUCIÓN AL SCROLL EN CELULARES ====== */
         .main-container { display: flex; flex-direction: column; min-height: 100vh; }
         .panel-izquierdo { width: 100%; height: 60vh; display: flex; justify-content: center; align-items: center; background: #000; position: relative; overflow: hidden; flex: none; }
         video, canvas { max-width: 100%; max-height: 100%; object-fit: contain; touch-action: none; }
         .panel-derecho { width: 100%; padding: 15px; background: var(--panel-bg); display: flex; flex-direction: column; gap: 15px; flex: 1; box-sizing: border-box; overflow: visible; padding-bottom: 50px;}
-        /* ============================================= */
 
         /* HUD */
         .hud-guias { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; display: none; flex-direction: column; justify-content: center; align-items: center; z-index: 10; }
@@ -34,8 +32,8 @@
         .hud-linea-v { width: 1px; height: 80%; border-left: 1px dashed rgba(255, 255, 255, 0.3); position: absolute; transition: all 0.3s; }
         .hud-alerta { position: absolute; top: 5%; padding: 8px 15px; background: rgba(0,0,0,0.6); border-radius: 20px; color: var(--accent); font-size: 13px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; text-align: center; }
 
+        /* Controles */
         #info { background: #2c2c2e; padding: 12px; border-radius: 8px; font-size: 14px; border-left: 4px solid var(--accent); line-height: 1.4; }
-        
         .controles { display: flex; gap: 10px; width: 100%; flex-wrap: wrap; }
         button { flex: 1; padding: 14px 10px; font-size: 16px; font-weight: bold; border-radius: 8px; border: none; cursor: pointer; min-width: 120px; transition: background 0.3s;}
         .btn-primario { background-color: #007aff; color: white; }
@@ -43,7 +41,7 @@
         .btn-secundario { background-color: #3a3a3c; color: white; display: none; }
         .btn-linterna { background-color: #3a3a3c; color: white; display: none; }
         .btn-linterna.activa { background-color: var(--text-main); color: #000; }
-        .btn-descarga { background-color: #ff9f0a; color: white; display: none; } /* Botón Naranja para PDF/PNG */
+        .btn-descarga { background-color: #ff9f0a; color: white; display: none; }
 
         /* Panel Calibración */
         .panel-calibracion { background: #2c2c2e; padding: 15px; border-radius: 8px; border: 1px solid var(--calib-color); display: none; flex-direction: column; gap: 10px; }
@@ -53,6 +51,7 @@
         .calib-slider { width: 100%; accent-color: var(--calib-color); }
         .calib-help { font-size: 12px; color: #86868b; text-align: center; }
 
+        /* Tablas */
         .seccion-datos { display: none; }
         table { width: 100%; border-collapse: collapse; font-size: 14px; margin-bottom: 15px;}
         th, td { padding: 8px 5px; text-align: center; border-bottom: 1px solid var(--border-color); }
@@ -60,9 +59,9 @@
         td:first-child { text-align: left; color: #86868b; font-weight: bold; width: 25%; }
         tr.total td { border-top: 1px solid #86868b; font-weight: bold; color: white; }
         
-        /* DISEÑO PARA TABLETS / PC (Horizontal) */
+        /* TABLETS / PC */
         @media (min-width: 600px) and (orientation: landscape) {
-            body { overflow: hidden; } /* En tablet sí bloqueamos el scroll general */
+            body { overflow: hidden; } 
             .main-container { flex-direction: row; height: calc(100vh - 55px); min-height: auto;}
             .panel-izquierdo { flex: 1.5; height: 100%; border-right: 1px solid var(--border-color); }
             .panel-derecho { flex: 1; height: 100%; overflow-y: auto; padding-bottom: 20px;}
@@ -156,6 +155,7 @@
 </div>
 
 <script>
+    // Variables Globales
     const pantallaMenu = document.getElementById('pantallaMenu');
     const pantallaApp = document.getElementById('pantallaApp');
     const video = document.getElementById('video');
@@ -167,15 +167,10 @@
     const tablaPerfil = document.getElementById('tablaPerfil');
     
     const hud = document.getElementById('hud');
-    const hudTexto = document.getElementById('hudTexto');
-    const hudOval = document.getElementById('hudOval');
-    const hudLineH = document.getElementById('hudLineH');
-    const hudLineV = document.getElementById('hudLineV');
-
     const panelCalibracion = document.getElementById('panelCalibracion');
-    const lblTipoCalib = document.getElementById('lblTipoCalib');
     const inputCalibReal = document.getElementById('inputCalibReal');
     const sliderCalib = document.getElementById('sliderCalib');
+    const lblTipoCalib = document.getElementById('lblTipoCalib');
 
     const btnCapturar = document.getElementById('btnCapturar');
     const btnLinterna = document.getElementById('btnLinterna');
@@ -195,73 +190,91 @@
     let marcas = {}; let nodoArrastrado = null; let dragOffset = {x: 0, y: 0};
     let videoTrack = null; let linternaEncendida = false;
 
-    // ====== MENÚ ======
-    document.getElementById('btnModoCompleto').addEventListener('click', () => { modoOperacion = "completa"; iniciarApp(); });
-    document.getElementById('btnModoRapido').addEventListener('click', () => { modoOperacion = "rapida"; iniciarApp(); });
+    // ====== EVENTOS DEL MENÚ (Seguros) ======
+    document.getElementById('btnModoCompleto').onclick = () => iniciarApp("completa");
+    document.getElementById('btnModoRapido').onclick = () => iniciarApp("rapida");
 
-    function iniciarApp() {
-        pantallaMenu.style.display = 'none'; pantallaApp.style.display = 'block'; encenderCamaraFrontal();
+    function iniciarApp(modo) {
+        modoOperacion = modo;
+        pantallaMenu.style.display = 'none'; 
+        pantallaApp.style.display = 'block'; 
+        info.innerHTML = "Iniciando hardware de cámara...";
+        
+        // Retrasamos el encendido de la cámara 300ms para asegurar que el navegador redibujó la pantalla
+        setTimeout(encenderCamaraFrontal, 300);
     }
 
-    // ====== CÁMARA ======
+    // ====== CÁMARA ROBUSTA ======
     async function encenderCamaraFrontal() {
         try {
             const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment", width: { ideal: 1920 } } });
-            video.srcObject = stream; await video.play(); 
-            hud.style.display = 'flex'; btnCapturar.style.display = 'block';
-            info.innerHTML = "Alinee el rostro en la <b>silueta punteada</b>. Luego presione Tomar Foto.";
+            video.srcObject = stream; 
+            
+            video.onloadedmetadata = () => {
+                video.play().catch(e => console.warn("Autoplay bloqueado:", e));
+                hud.style.display = 'flex'; 
+                btnCapturar.style.display = 'block';
+                info.innerHTML = "Alinee el rostro en la <b>silueta punteada</b>. Luego presione Tomar Foto.";
+            };
 
             try {
                 videoTrack = stream.getVideoTracks()[0];
                 if (typeof ImageCapture !== 'undefined') {
-                    const imageCapture = new ImageCapture(videoTrack);
-                    imageCapture.getPhotoCapabilities().then(() => { btnLinterna.style.display = 'block'; }).catch(()=>{});
-                } else if (videoTrack.getCapabilities().torch) { btnLinterna.style.display = 'block'; }
-            } catch (e) { }
-        } catch (err) { alert("Error de cámara. Revise permisos."); }
+                    new ImageCapture(videoTrack).getPhotoCapabilities().then(() => { btnLinterna.style.display = 'block'; }).catch(()=>{});
+                } else if (videoTrack.getCapabilities && videoTrack.getCapabilities().torch) { 
+                    btnLinterna.style.display = 'block'; 
+                }
+            } catch (e) { console.log("Linterna no disponible"); }
+        } catch (err) { 
+            alert("Error: " + err.message + "\nRevise permisos de cámara."); 
+            info.innerHTML = "❌ Permisos denegados.";
+        }
     }
 
-    btnLinterna.addEventListener('click', async () => {
+    btnLinterna.onclick = async () => {
         if (!videoTrack) return;
         linternaEncendida = !linternaEncendida;
         try {
             await videoTrack.applyConstraints({ advanced: [{ torch: linternaEncendida }] });
             if (linternaEncendida) { btnLinterna.classList.add('activa'); btnLinterna.innerText = "🔦 Apagar"; } 
             else { btnLinterna.classList.remove('activa'); btnLinterna.innerText = "🔦 Linterna"; }
-        } catch (err) { alert("Flash no soportado."); linternaEncendida = false; }
-    });
+        } catch (err) { alert("Flash no soportado en web para este equipo."); linternaEncendida = false; }
+    };
 
-    btnCapturar.addEventListener('click', async () => {
+    btnCapturar.onclick = async () => {
         hud.style.display = 'none';
         canvas.width = video.videoWidth; canvas.height = video.videoHeight;
         canvasFoto.width = canvas.width; canvasFoto.height = canvas.height;
         ctxFoto.drawImage(video, 0, 0, canvas.width, canvas.height);
         
         if (linternaEncendida && videoTrack) { try { await videoTrack.applyConstraints({ advanced: [{ torch: false }] }); } catch(e){} linternaEncendida = false; }
+        
         video.style.display = 'none'; canvas.style.display = 'block';
         btnCapturar.style.display = 'none'; btnLinterna.style.display = 'none'; btnReiniciar.style.display = 'block';
         
         if(fase === "inicio") iniciarFaseCalibracion(); else if(fase === "inicio_perfil") iniciarFaseCalibracionPerfil();
-    });
+    };
 
-    btnNuevaMedicion.addEventListener('click', () => { location.reload(); });
-    btnReiniciar.addEventListener('click', () => { 
-        if(fase.includes("perfil")) { encenderCamaraPerfil(); } 
-        else { 
+    btnNuevaMedicion.onclick = () => location.reload();
+    
+    btnReiniciar.onclick = () => { 
+        if(fase.includes("perfil")) { 
+            encenderCamaraPerfil(); 
+        } else { 
             canvas.style.display = 'none'; video.style.display = 'block'; panelCalibracion.style.display = 'none';
-            btnCapturar.style.display = 'block'; btnReiniciar.style.display = 'none'; btnAvanzar.style.display = 'none'; btnDescarga.style.display = 'none';
+            btnCapturar.style.display = 'block'; btnReiniciar.style.display = 'none'; btnAvanzar.style.display = 'none'; btnDescargar.style.display = 'none';
             hud.style.display = 'flex'; fase = "inicio"; info.innerHTML = "Reencuadre al paciente y tome la foto nuevamente."; 
-            if(videoTrack) { try { if (typeof ImageCapture !== 'undefined' || videoTrack.getCapabilities().torch) { btnLinterna.style.display = 'block'; } } catch(e){} }
+            if(videoTrack) { try { if (typeof ImageCapture !== 'undefined' || (videoTrack.getCapabilities && videoTrack.getCapabilities().torch)) { btnLinterna.style.display = 'block'; } } catch(e){} }
         }
-    });
+    };
 
     // ====== CALIBRACIÓN DINÁMICA ======
-    sliderCalib.addEventListener('input', (e) => {
+    sliderCalib.oninput = (e) => {
         let val = parseInt(e.target.value);
         if(fase === "calibracion") marcas.calibFrente.width = val;
         else if(fase === "calibracion_perfil") marcas.calibPerfil.radius = val;
         dibujarTodo();
-    });
+    };
 
     // ====== FASES FRENTE ======
     function iniciarFaseCalibracion() {
@@ -309,6 +322,4 @@
         let altIzq = Math.abs(Math.max(marcas.oiTL.y, marcas.oiBR.y) - marcas.pupIzq.y) * factorEscala;
 
         document.getElementById('dpDer').innerText = dpDer.toFixed(1); document.getElementById('dpIzq').innerText = dpIzq.toFixed(1); document.getElementById('dpTotal').innerText = (dpDer + dpIzq).toFixed(1);
-        document.getElementById('altDer').innerText = altDer.toFixed(1); document.getElementById('altIzq').innerText = altIzq.toFixed(1);
-        document.getElementById('aDer').innerText = aDer.toFixed(1); document.getElementById('bDer').innerText = bDer.toFixed(1);
-        
+        document.getElementById('altDer').innerText = altDer.toFixed(1); document.getElementById('altIzq').innerText = altIzq.toF
