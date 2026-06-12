@@ -3,17 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Centrador Pro - Estable</title>
+    <title>Centrador Pro - Estable V2</title>
     <style>
         :root { --bg-color: #2b2b2d; --panel-bg: #1c1c1e; --text-main: #f5f5f7; --accent: #ffd60a; --border-color: #38383a; --calib-color: #0a84ff;}
         body { font-family: -apple-system, sans-serif; margin: 0; padding: 0; background-color: var(--bg-color); color: var(--text-main); user-select: none; }
         
         /* Menú Principal */
-        #pantallaMenu { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: var(--bg-color); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 100; padding: 20px; box-sizing: border-box; text-align: center; transition: opacity 0.3s; }
+        #pantallaMenu { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: var(--bg-color); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 9999; padding: 20px; box-sizing: border-box; text-align: center; }
         .logo-app { font-size: 32px; font-weight: bold; margin-bottom: 5px; }
         .logo-app span { color: var(--accent); }
         .sub-logo { color: #86868b; font-size: 16px; margin-bottom: 40px; }
-        .btn-menu { width: 100%; max-width: 350px; padding: 20px; margin-bottom: 15px; border-radius: 12px; font-size: 18px; font-weight: bold; border: none; cursor: pointer; transition: 0.2s; display: flex; flex-direction: column; align-items: center; gap: 8px; }
+        .btn-menu { width: 100%; max-width: 350px; padding: 20px; margin-bottom: 15px; border-radius: 12px; font-size: 18px; font-weight: bold; border: none; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
         .btn-menu-completo { background-color: #007aff; color: white; }
         .btn-menu-rapido { background-color: #3a3a3c; color: white; }
         .btn-menu span { font-size: 13px; font-weight: normal; opacity: 0.8; }
@@ -28,8 +28,8 @@
         /* HUD */
         .hud-guias { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; display: none; flex-direction: column; justify-content: center; align-items: center; z-index: 10; }
         .hud-oval { width: 55%; max-width: 220px; height: 50%; max-height: 320px; border: 2px dashed rgba(255, 214, 10, 0.6); border-radius: 50% 50% 45% 45% / 60% 60% 40% 40%; position: absolute; transition: all 0.3s; }
-        .hud-linea-h { width: 80%; height: 1px; border-top: 1px solid rgba(255, 255, 255, 0.4); position: absolute; top: 38%; transition: all 0.3s; }
-        .hud-linea-v { width: 1px; height: 80%; border-left: 1px dashed rgba(255, 255, 255, 0.3); position: absolute; transition: all 0.3s; }
+        .hud-linea-h { width: 80%; height: 1px; border-top: 1px solid rgba(255, 255, 255, 0.4); position: absolute; top: 38%; }
+        .hud-linea-v { width: 1px; height: 80%; border-left: 1px dashed rgba(255, 255, 255, 0.3); position: absolute; }
         .hud-alerta { position: absolute; top: 5%; padding: 8px 15px; background: rgba(0,0,0,0.6); border-radius: 20px; color: var(--accent); font-size: 13px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; text-align: center; }
 
         /* Controles */
@@ -75,11 +75,12 @@
     <div class="logo-app">i.Terminal <span>Pro</span></div>
     <div class="sub-logo">Biometría Clínica Digital</div>
     
-    <button id="btnModoCompleto" class="btn-menu btn-menu-completo">
+    <!-- Se añadieron los eventos onclick directamente al HTML para evitar bloqueos de JavaScript -->
+    <button class="btn-menu btn-menu-completo" onclick="iniciarApp('completa')">
         Biometría Completa
         <span>Frente + Perfil (Lentes Progresivos)</span>
     </button>
-    <button id="btnModoRapido" class="btn-menu btn-menu-rapido">
+    <button class="btn-menu btn-menu-rapido" onclick="iniciarApp('rapida')">
         Biometría Rápida
         <span>Solo Frente (Visión Sencilla)</span>
     </button>
@@ -122,14 +123,14 @@
             </div>
             
             <div class="controles">
-                <button id="btnLinterna" class="btn-linterna">🔦 Linterna</button>
-                <button id="btnCapturar" class="btn-primario" style="display:none;">Tomar Foto</button>
+                <button id="btnLinterna" class="btn-linterna" onclick="toggleLinterna()">🔦 Linterna</button>
+                <button id="btnCapturar" class="btn-primario" style="display:none;" onclick="ejecutarCaptura()">Tomar Foto</button>
                 
-                <button id="btnAvanzar" class="btn-accion">Siguiente Fase ➔</button>
-                <button id="btnPerfil" class="btn-primario" style="display:none; background-color: #5e5ce6;">Siguiente: Perfil ➔</button>
-                <button id="btnDescargar" class="btn-descarga">📥 Descargar Reporte</button>
-                <button id="btnNuevaMedicion" class="btn-primario" style="display:none; background-color: #32d74b;">Nueva Medición</button>
-                <button id="btnReiniciar" class="btn-secundario">Rehacer Fase</button>
+                <button id="btnAvanzar" class="btn-accion" onclick="avanzarFase()">Siguiente Fase ➔</button>
+                <button id="btnPerfil" class="btn-primario" style="display:none; background-color: #5e5ce6;" onclick="encenderCamaraPerfil()">Siguiente: Perfil ➔</button>
+                <button id="btnDescargar" class="btn-descarga" onclick="descargarReporte()">📥 Descargar Reporte</button>
+                <button id="btnNuevaMedicion" class="btn-primario" style="display:none; background-color: #32d74b;" onclick="location.reload()">Nueva Medición</button>
+                <button id="btnReiniciar" class="btn-secundario" onclick="reiniciarFase()">Rehacer Fase</button>
             </div>
 
             <div class="seccion-datos" id="seccionDatos">
@@ -155,7 +156,12 @@
 </div>
 
 <script>
-    // Variables Globales
+    // CAZADOR DE ERRORES: Si algo falla, se mostrará un mensaje de alerta.
+    window.onerror = function(msg, url, line) {
+        alert("Atención: " + msg + "\nLínea: " + line);
+        return false;
+    };
+
     const pantallaMenu = document.getElementById('pantallaMenu');
     const pantallaApp = document.getElementById('pantallaApp');
     const video = document.getElementById('video');
@@ -190,18 +196,15 @@
     let marcas = {}; let nodoArrastrado = null; let dragOffset = {x: 0, y: 0};
     let videoTrack = null; let linternaEncendida = false;
 
-    // ====== EVENTOS DEL MENÚ (Seguros) ======
-    document.getElementById('btnModoCompleto').onclick = () => iniciarApp("completa");
-    document.getElementById('btnModoRapido').onclick = () => iniciarApp("rapida");
-
+    // ====== INICIO SEGURO DE APP ======
     function iniciarApp(modo) {
         modoOperacion = modo;
         pantallaMenu.style.display = 'none'; 
         pantallaApp.style.display = 'block'; 
         info.innerHTML = "Iniciando hardware de cámara...";
         
-        // Retrasamos el encendido de la cámara 300ms para asegurar que el navegador redibujó la pantalla
-        setTimeout(encenderCamaraFrontal, 300);
+        // Retraso milimétrico para permitir que la interfaz cambie antes de encender la cámara
+        setTimeout(encenderCamaraFrontal, 200);
     }
 
     // ====== CÁMARA ROBUSTA ======
@@ -226,12 +229,12 @@
                 }
             } catch (e) { console.log("Linterna no disponible"); }
         } catch (err) { 
-            alert("Error: " + err.message + "\nRevise permisos de cámara."); 
-            info.innerHTML = "❌ Permisos denegados.";
+            alert("Error: " + err.message + "\n\nRevise que el navegador tenga permisos de cámara."); 
+            info.innerHTML = "❌ Permisos de cámara denegados.";
         }
     }
 
-    btnLinterna.onclick = async () => {
+    async function toggleLinterna() {
         if (!videoTrack) return;
         linternaEncendida = !linternaEncendida;
         try {
@@ -239,9 +242,9 @@
             if (linternaEncendida) { btnLinterna.classList.add('activa'); btnLinterna.innerText = "🔦 Apagar"; } 
             else { btnLinterna.classList.remove('activa'); btnLinterna.innerText = "🔦 Linterna"; }
         } catch (err) { alert("Flash no soportado en web para este equipo."); linternaEncendida = false; }
-    };
+    }
 
-    btnCapturar.onclick = async () => {
+    async function ejecutarCaptura() {
         hud.style.display = 'none';
         canvas.width = video.videoWidth; canvas.height = video.videoHeight;
         canvasFoto.width = canvas.width; canvasFoto.height = canvas.height;
@@ -253,11 +256,9 @@
         btnCapturar.style.display = 'none'; btnLinterna.style.display = 'none'; btnReiniciar.style.display = 'block';
         
         if(fase === "inicio") iniciarFaseCalibracion(); else if(fase === "inicio_perfil") iniciarFaseCalibracionPerfil();
-    };
-
-    btnNuevaMedicion.onclick = () => location.reload();
+    }
     
-    btnReiniciar.onclick = () => { 
+    function reiniciarFase() { 
         if(fase.includes("perfil")) { 
             encenderCamaraPerfil(); 
         } else { 
@@ -266,7 +267,7 @@
             hud.style.display = 'flex'; fase = "inicio"; info.innerHTML = "Reencuadre al paciente y tome la foto nuevamente."; 
             if(videoTrack) { try { if (typeof ImageCapture !== 'undefined' || (videoTrack.getCapabilities && videoTrack.getCapabilities().torch)) { btnLinterna.style.display = 'block'; } } catch(e){} }
         }
-    };
+    }
 
     // ====== CALIBRACIÓN DINÁMICA ======
     sliderCalib.oninput = (e) => {
@@ -321,5 +322,4 @@
         let altDer = Math.abs(Math.max(marcas.odTL.y, marcas.odBR.y) - marcas.pupDer.y) * factorEscala;
         let altIzq = Math.abs(Math.max(marcas.oiTL.y, marcas.oiBR.y) - marcas.pupIzq.y) * factorEscala;
 
-        document.getElementById('dpDer').innerText = dpDer.toFixed(1); document.getElementById('dpIzq').innerText = dpIzq.toFixed(1); document.getElementById('dpTotal').innerText = (dpDer + dpIzq).toFixed(1);
-        document.getElementById('altDer').innerText = altDer.toFixed(1); document.getElementById('altIzq').innerText = altIzq.toF
+        document.getElementById('dpDer').innerText = dpDer.toFixed(1); document.getElementById('d
