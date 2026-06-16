@@ -3,39 +3,37 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Centrador Pro - Reportes</title>
+    <title>Centrador Pro - Trial Lens Update</title>
     <style>
         :root { --bg-color: #2b2b2d; --panel-bg: #1c1c1e; --text-main: #f5f5f7; --accent: #ffd60a; --border-color: #38383a; --calib-color: #0a84ff;}
         body { font-family: -apple-system, sans-serif; margin: 0; padding: 0; background-color: var(--bg-color); color: var(--text-main); user-select: none; }
         
         /* Menú Principal */
-        #pantallaMenu { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: var(--bg-color); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 100; padding: 20px; box-sizing: border-box; text-align: center; }
+        #pantallaMenu { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: var(--bg-color); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 9999; padding: 20px; box-sizing: border-box; text-align: center; }
         .logo-app { font-size: 32px; font-weight: bold; margin-bottom: 5px; }
         .logo-app span { color: var(--accent); }
         .sub-logo { color: #86868b; font-size: 16px; margin-bottom: 40px; }
-        .btn-menu { width: 100%; max-width: 350px; padding: 20px; margin-bottom: 15px; border-radius: 12px; font-size: 18px; font-weight: bold; border: none; cursor: pointer; transition: 0.2s; display: flex; flex-direction: column; align-items: center; gap: 8px; }
+        .btn-menu { width: 100%; max-width: 350px; padding: 20px; margin-bottom: 15px; border-radius: 12px; font-size: 18px; font-weight: bold; border: none; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
         .btn-menu-completo { background-color: #007aff; color: white; }
         .btn-menu-rapido { background-color: #3a3a3c; color: white; }
         .btn-menu span { font-size: 13px; font-weight: normal; opacity: 0.8; }
 
+        /* Contenedores App */
         .header { padding: 15px; font-size: 18px; border-bottom: 1px solid var(--border-color); background: var(--bg-color); display: flex; justify-content: space-between; position: sticky; top: 0; z-index: 50; }
-        
-        /* ====== SOLUCIÓN AL SCROLL EN CELULARES ====== */
         .main-container { display: flex; flex-direction: column; min-height: 100vh; }
         .panel-izquierdo { width: 100%; height: 60vh; display: flex; justify-content: center; align-items: center; background: #000; position: relative; overflow: hidden; flex: none; }
         video, canvas { max-width: 100%; max-height: 100%; object-fit: contain; touch-action: none; }
         .panel-derecho { width: 100%; padding: 15px; background: var(--panel-bg); display: flex; flex-direction: column; gap: 15px; flex: 1; box-sizing: border-box; overflow: visible; padding-bottom: 50px;}
-        /* ============================================= */
 
         /* HUD */
         .hud-guias { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; display: none; flex-direction: column; justify-content: center; align-items: center; z-index: 10; }
         .hud-oval { width: 55%; max-width: 220px; height: 50%; max-height: 320px; border: 2px dashed rgba(255, 214, 10, 0.6); border-radius: 50% 50% 45% 45% / 60% 60% 40% 40%; position: absolute; transition: all 0.3s; }
-        .hud-linea-h { width: 80%; height: 1px; border-top: 1px solid rgba(255, 255, 255, 0.4); position: absolute; top: 38%; transition: all 0.3s; }
-        .hud-linea-v { width: 1px; height: 80%; border-left: 1px dashed rgba(255, 255, 255, 0.3); position: absolute; transition: all 0.3s; }
+        .hud-linea-h { width: 80%; height: 1px; border-top: 1px solid rgba(255, 255, 255, 0.4); position: absolute; top: 38%; }
+        .hud-linea-v { width: 1px; height: 80%; border-left: 1px dashed rgba(255, 255, 255, 0.3); position: absolute; }
         .hud-alerta { position: absolute; top: 5%; padding: 8px 15px; background: rgba(0,0,0,0.6); border-radius: 20px; color: var(--accent); font-size: 13px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; text-align: center; }
 
+        /* Controles */
         #info { background: #2c2c2e; padding: 12px; border-radius: 8px; font-size: 14px; border-left: 4px solid var(--accent); line-height: 1.4; }
-        
         .controles { display: flex; gap: 10px; width: 100%; flex-wrap: wrap; }
         button { flex: 1; padding: 14px 10px; font-size: 16px; font-weight: bold; border-radius: 8px; border: none; cursor: pointer; min-width: 120px; transition: background 0.3s;}
         .btn-primario { background-color: #007aff; color: white; }
@@ -43,7 +41,7 @@
         .btn-secundario { background-color: #3a3a3c; color: white; display: none; }
         .btn-linterna { background-color: #3a3a3c; color: white; display: none; }
         .btn-linterna.activa { background-color: var(--text-main); color: #000; }
-        .btn-descarga { background-color: #ff9f0a; color: white; display: none; } /* Botón Naranja para PDF/PNG */
+        .btn-descarga { background-color: #ff9f0a; color: white; display: none; }
 
         /* Panel Calibración */
         .panel-calibracion { background: #2c2c2e; padding: 15px; border-radius: 8px; border: 1px solid var(--calib-color); display: none; flex-direction: column; gap: 10px; }
@@ -53,6 +51,7 @@
         .calib-slider { width: 100%; accent-color: var(--calib-color); }
         .calib-help { font-size: 12px; color: #86868b; text-align: center; }
 
+        /* Tablas */
         .seccion-datos { display: none; }
         table { width: 100%; border-collapse: collapse; font-size: 14px; margin-bottom: 15px;}
         th, td { padding: 8px 5px; text-align: center; border-bottom: 1px solid var(--border-color); }
@@ -60,9 +59,8 @@
         td:first-child { text-align: left; color: #86868b; font-weight: bold; width: 25%; }
         tr.total td { border-top: 1px solid #86868b; font-weight: bold; color: white; }
         
-        /* DISEÑO PARA TABLETS / PC (Horizontal) */
         @media (min-width: 600px) and (orientation: landscape) {
-            body { overflow: hidden; } /* En tablet sí bloqueamos el scroll general */
+            body { overflow: hidden; } 
             .main-container { flex-direction: row; height: calc(100vh - 55px); min-height: auto;}
             .panel-izquierdo { flex: 1.5; height: 100%; border-right: 1px solid var(--border-color); }
             .panel-derecho { flex: 1; height: 100%; overflow-y: auto; padding-bottom: 20px;}
@@ -75,15 +73,8 @@
 <div id="pantallaMenu">
     <div class="logo-app">i.Terminal <span>Pro</span></div>
     <div class="sub-logo">Biometría Clínica Digital</div>
-    
-    <button id="btnModoCompleto" class="btn-menu btn-menu-completo">
-        Biometría Completa
-        <span>Frente + Perfil (Lentes Progresivos)</span>
-    </button>
-    <button id="btnModoRapido" class="btn-menu btn-menu-rapido">
-        Biometría Rápida
-        <span>Solo Frente (Visión Sencilla)</span>
-    </button>
+    <button class="btn-menu btn-menu-completo" onclick="iniciarApp('completa')">Biometría Completa<span>Frente + Perfil (Lentes Progresivos)</span></button>
+    <button class="btn-menu btn-menu-rapido" onclick="iniciarApp('rapida')">Biometría Rápida<span>Solo Frente (Visión Sencilla)</span></button>
 </div>
 
 <!-- PANTALLA APLICACIÓN -->
@@ -96,14 +87,12 @@
     <div class="main-container">
         <div class="panel-izquierdo">
             <video id="video" autoplay playsinline muted></video>
-            
             <div id="hud" class="hud-guias">
                 <div id="hudTexto" class="hud-alerta">Alinee el Rostro</div>
                 <div id="hudOval" class="hud-oval"></div>
                 <div id="hudLineH" class="hud-linea-h"></div>
                 <div id="hudLineV" class="hud-linea-v"></div>
             </div>
-
             <canvas id="canvas" style="display:none;"></canvas>
         </div>
 
@@ -118,19 +107,18 @@
                         <span>mm</span>
                     </div>
                 </div>
-                <input type="range" id="sliderCalib" class="calib-slider" min="10" max="300" value="80">
+                <input type="range" id="sliderCalib" class="calib-slider" min="10" max="400" value="80">
                 <div class="calib-help">Usa la barra para ajustar el calibrador.</div>
             </div>
             
             <div class="controles">
-                <button id="btnLinterna" class="btn-linterna">🔦 Linterna</button>
-                <button id="btnCapturar" class="btn-primario" style="display:none;">Tomar Foto</button>
-                
-                <button id="btnAvanzar" class="btn-accion">Siguiente Fase ➔</button>
-                <button id="btnPerfil" class="btn-primario" style="display:none; background-color: #5e5ce6;">Siguiente: Perfil ➔</button>
-                <button id="btnDescargar" class="btn-descarga">📥 Descargar Reporte</button>
-                <button id="btnNuevaMedicion" class="btn-primario" style="display:none; background-color: #32d74b;">Nueva Medición</button>
-                <button id="btnReiniciar" class="btn-secundario">Rehacer Fase</button>
+                <button id="btnLinterna" class="btn-linterna" onclick="toggleLinterna()">🔦 Linterna</button>
+                <button id="btnCapturar" class="btn-primario" style="display:none;" onclick="ejecutarCaptura()">Tomar Foto</button>
+                <button id="btnAvanzar" class="btn-accion" onclick="avanzarFase()">Siguiente Fase ➔</button>
+                <button id="btnPerfil" class="btn-primario" style="display:none; background-color: #5e5ce6;" onclick="encenderCamaraPerfil()">Siguiente: Perfil ➔</button>
+                <button id="btnDescargar" class="btn-descarga" onclick="descargarReporte()">📥 Descargar Reporte</button>
+                <button id="btnNuevaMedicion" class="btn-primario" style="display:none; background-color: #32d74b;" onclick="location.reload()">Nueva Medición</button>
+                <button id="btnReiniciar" class="btn-secundario" onclick="reiniciarFase()">Rehacer Fase</button>
             </div>
 
             <div class="seccion-datos" id="seccionDatos">
@@ -145,7 +133,6 @@
                     <tr><td>OD</td><td id="aDer">-</td><td id="bDer">-</td><td rowspan="2" id="puente" style="vertical-align: middle;">-</td><td id="diamDer">-</td></tr>
                     <tr><td>OI</td><td id="aIzq">-</td><td id="bIzq">-</td><td id="diamIzq">-</td></tr>
                 </table>
-                
                 <table id="tablaPerfil" style="display:none; margin-top: 15px;">
                     <tr><th>Perfil lateral</th><th>Panto (°)</th><th>Vértice (BVD)</th></tr>
                     <tr><td>Medidas</td><td id="pantoVal" style="color: var(--accent); font-weight: bold;">-</td><td id="bvdVal" style="color: #32d74b; font-weight: bold;">-</td></tr>
@@ -156,38 +143,21 @@
 </div>
 
 <script>
-    const pantallaMenu = document.getElementById('pantallaMenu');
-    const pantallaApp = document.getElementById('pantallaApp');
-    const video = document.getElementById('video');
-    const canvas = document.getElementById('canvas');
-    const ctx = canvas.getContext('2d');
-    const info = document.getElementById('info');
-    const faseTitulo = document.getElementById('faseTitulo');
-    const seccionDatos = document.getElementById('seccionDatos');
-    const tablaPerfil = document.getElementById('tablaPerfil');
-    
-    const hud = document.getElementById('hud');
-    const hudTexto = document.getElementById('hudTexto');
-    const hudOval = document.getElementById('hudOval');
-    const hudLineH = document.getElementById('hudLineH');
-    const hudLineV = document.getElementById('hudLineV');
+    window.onerror = function(msg, url, line) { alert("Error detectado: " + msg + " (Línea " + line + ")"); return false; };
 
-    const panelCalibracion = document.getElementById('panelCalibracion');
+    const pantallaMenu = document.getElementById('pantallaMenu'); const pantallaApp = document.getElementById('pantallaApp');
+    const video = document.getElementById('video'); const canvas = document.getElementById('canvas'); const ctx = canvas.getContext('2d');
+    const info = document.getElementById('info'); const faseTitulo = document.getElementById('faseTitulo');
+    const seccionDatos = document.getElementById('seccionDatos'); const tablaPerfil = document.getElementById('tablaPerfil');
+    const hud = document.getElementById('hud'); const panelCalibracion = document.getElementById('panelCalibracion');
+    const inputCalibReal = document.getElementById('inputCalibReal'); const sliderCalib = document.getElementById('sliderCalib');
     const lblTipoCalib = document.getElementById('lblTipoCalib');
-    const inputCalibReal = document.getElementById('inputCalibReal');
-    const sliderCalib = document.getElementById('sliderCalib');
-
-    const btnCapturar = document.getElementById('btnCapturar');
-    const btnLinterna = document.getElementById('btnLinterna');
-    const btnAvanzar = document.getElementById('btnAvanzar');
-    const btnPerfil = document.getElementById('btnPerfil');
-    const btnDescargar = document.getElementById('btnDescargar');
-    const btnNuevaMedicion = document.getElementById('btnNuevaMedicion');
+    const btnCapturar = document.getElementById('btnCapturar'); const btnLinterna = document.getElementById('btnLinterna');
+    const btnAvanzar = document.getElementById('btnAvanzar'); const btnPerfil = document.getElementById('btnPerfil');
+    const btnDescargar = document.getElementById('btnDescargar'); const btnNuevaMedicion = document.getElementById('btnNuevaMedicion');
     const btnReiniciar = document.getElementById('btnReiniciar');
 
-    const canvasFoto = document.createElement('canvas');
-    const ctxFoto = canvasFoto.getContext('2d');
-
+    const canvasFoto = document.createElement('canvas'); const ctxFoto = canvasFoto.getContext('2d');
     const COLOR_ZEISS = "#ffd60a"; const COLOR_VERDE = "#32d74b"; const COLOR_CALIB = "#0a84ff"; 
     
     let factorEscala = 0; let factorEscalaPerfil = 0; 
@@ -195,75 +165,66 @@
     let marcas = {}; let nodoArrastrado = null; let dragOffset = {x: 0, y: 0};
     let videoTrack = null; let linternaEncendida = false;
 
-    // ====== MENÚ ======
-    document.getElementById('btnModoCompleto').addEventListener('click', () => { modoOperacion = "completa"; iniciarApp(); });
-    document.getElementById('btnModoRapido').addEventListener('click', () => { modoOperacion = "rapida"; iniciarApp(); });
-
-    function iniciarApp() {
-        pantallaMenu.style.display = 'none'; pantallaApp.style.display = 'block'; encenderCamaraFrontal();
+    function iniciarApp(modo) {
+        modoOperacion = modo; pantallaMenu.style.display = 'none'; pantallaApp.style.display = 'block'; 
+        info.innerHTML = "Iniciando hardware de cámara..."; setTimeout(encenderCamaraFrontal, 200);
     }
 
-    // ====== CÁMARA ======
     async function encenderCamaraFrontal() {
         try {
             const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment", width: { ideal: 1920 } } });
-            video.srcObject = stream; await video.play(); 
-            hud.style.display = 'flex'; btnCapturar.style.display = 'block';
-            info.innerHTML = "Alinee el rostro en la <b>silueta punteada</b>. Luego presione Tomar Foto.";
-
+            video.srcObject = stream; 
+            video.onloadedmetadata = () => {
+                video.play().catch(e => console.warn(e));
+                hud.style.display = 'flex'; btnCapturar.style.display = 'block';
+                info.innerHTML = "Alinee el rostro en la <b>silueta punteada</b>. Luego presione Tomar Foto.";
+            };
             try {
                 videoTrack = stream.getVideoTracks()[0];
-                if (typeof ImageCapture !== 'undefined') {
-                    const imageCapture = new ImageCapture(videoTrack);
-                    imageCapture.getPhotoCapabilities().then(() => { btnLinterna.style.display = 'block'; }).catch(()=>{});
-                } else if (videoTrack.getCapabilities().torch) { btnLinterna.style.display = 'block'; }
+                if (typeof ImageCapture !== 'undefined') { new ImageCapture(videoTrack).getPhotoCapabilities().then(() => { btnLinterna.style.display = 'block'; }).catch(()=>{}); } 
+                else if (videoTrack.getCapabilities && videoTrack.getCapabilities().torch) { btnLinterna.style.display = 'block'; }
             } catch (e) { }
-        } catch (err) { alert("Error de cámara. Revise permisos."); }
+        } catch (err) { alert("Revise permisos de cámara."); }
     }
 
-    btnLinterna.addEventListener('click', async () => {
-        if (!videoTrack) return;
-        linternaEncendida = !linternaEncendida;
+    async function toggleLinterna() {
+        if (!videoTrack) return; linternaEncendida = !linternaEncendida;
         try {
             await videoTrack.applyConstraints({ advanced: [{ torch: linternaEncendida }] });
-            if (linternaEncendida) { btnLinterna.classList.add('activa'); btnLinterna.innerText = "🔦 Apagar"; } 
-            else { btnLinterna.classList.remove('activa'); btnLinterna.innerText = "🔦 Linterna"; }
-        } catch (err) { alert("Flash no soportado."); linternaEncendida = false; }
-    });
+            if (linternaEncendida) { btnLinterna.classList.add('activa'); btnLinterna.innerText = "🔦 Apagar"; } else { btnLinterna.classList.remove('activa'); btnLinterna.innerText = "🔦 Linterna"; }
+        } catch (err) { linternaEncendida = false; }
+    }
 
-    btnCapturar.addEventListener('click', async () => {
+    async function ejecutarCaptura() {
         hud.style.display = 'none';
         canvas.width = video.videoWidth; canvas.height = video.videoHeight;
         canvasFoto.width = canvas.width; canvasFoto.height = canvas.height;
         ctxFoto.drawImage(video, 0, 0, canvas.width, canvas.height);
         
         if (linternaEncendida && videoTrack) { try { await videoTrack.applyConstraints({ advanced: [{ torch: false }] }); } catch(e){} linternaEncendida = false; }
+        
         video.style.display = 'none'; canvas.style.display = 'block';
         btnCapturar.style.display = 'none'; btnLinterna.style.display = 'none'; btnReiniciar.style.display = 'block';
-        
         if(fase === "inicio") iniciarFaseCalibracion(); else if(fase === "inicio_perfil") iniciarFaseCalibracionPerfil();
-    });
-
-    btnNuevaMedicion.addEventListener('click', () => { location.reload(); });
-    btnReiniciar.addEventListener('click', () => { 
+    }
+    
+    function reiniciarFase() { 
         if(fase.includes("perfil")) { encenderCamaraPerfil(); } 
         else { 
             canvas.style.display = 'none'; video.style.display = 'block'; panelCalibracion.style.display = 'none';
-            btnCapturar.style.display = 'block'; btnReiniciar.style.display = 'none'; btnAvanzar.style.display = 'none'; btnDescarga.style.display = 'none';
+            btnCapturar.style.display = 'block'; btnReiniciar.style.display = 'none'; btnAvanzar.style.display = 'none'; btnDescargar.style.display = 'none';
             hud.style.display = 'flex'; fase = "inicio"; info.innerHTML = "Reencuadre al paciente y tome la foto nuevamente."; 
-            if(videoTrack) { try { if (typeof ImageCapture !== 'undefined' || videoTrack.getCapabilities().torch) { btnLinterna.style.display = 'block'; } } catch(e){} }
+            if(videoTrack) { try { if (typeof ImageCapture !== 'undefined' || (videoTrack.getCapabilities && videoTrack.getCapabilities().torch)) { btnLinterna.style.display = 'block'; } } catch(e){} }
         }
-    });
+    }
 
-    // ====== CALIBRACIÓN DINÁMICA ======
-    sliderCalib.addEventListener('input', (e) => {
+    sliderCalib.oninput = (e) => {
         let val = parseInt(e.target.value);
         if(fase === "calibracion") marcas.calibFrente.width = val;
         else if(fase === "calibracion_perfil") marcas.calibPerfil.radius = val;
         dibujarTodo();
-    });
+    };
 
-    // ====== FASES FRENTE ======
     function iniciarFaseCalibracion() {
         fase = "calibracion"; faseTitulo.innerText = "Fase 1: Calibrador Iris (DHIV)";
         info.innerHTML = "Mueve el <b>joystick</b> al ojo. Usa la <b>barra</b> para rodear el Iris. Escribe el <b>DHIV real</b>.";
@@ -274,7 +235,7 @@
 
     function iniciarFaseMontura() {
         fase = "montura"; faseTitulo.innerText = "Fase 2: Sistema Boxing"; panelCalibracion.style.display = 'none';
-        info.innerHTML = "Arrastra las esquinas amarillas para <b>enmarcar los aros</b>.";
+        info.innerHTML = "Asegúrate de que las esquinas envuelvan <b>exactamente los aros</b>, ignorando las plaquetas.";
         let hvidReal = parseFloat(inputCalibReal.value) || 11.5; factorEscala = hvidReal / marcas.calibFrente.width;
         let w = canvas.width, h = canvas.height;
         marcas = { odTL: {x: w*0.3, y: h*0.35}, odBR: {x: w*0.45, y: h*0.5}, oiTL: {x: w*0.55, y: h*0.35}, oiBR: {x: w*0.7, y: h*0.5} };
@@ -290,12 +251,8 @@
 
     function calcularResultadosFrente() {
         fase = "resultados_frente"; faseTitulo.innerText = "Resultados: Frente"; btnAvanzar.style.display = "none"; 
-        
-        if(modoOperacion === "completa") {
-            info.innerHTML = "✅ Biometría Frontal lista. Continuemos con el perfil."; btnPerfil.style.display = "block"; btnDescargar.style.display = "block";
-        } else {
-            info.innerHTML = "✅ Biometría Rápida finalizada."; btnNuevaMedicion.style.display = "block"; btnDescargar.style.display = "block";
-        }
+        if(modoOperacion === "completa") { info.innerHTML = "✅ Biometría Frontal lista. Continuemos con el perfil."; btnPerfil.style.display = "block"; btnDescargar.style.display = "block"; } 
+        else { info.innerHTML = "✅ Biometría Rápida finalizada."; btnNuevaMedicion.style.display = "block"; btnDescargar.style.display = "block"; }
         dibujarTodo(); 
 
         let aDer = Math.abs(marcas.odBR.x - marcas.odTL.x) * factorEscala, bDer = Math.abs(marcas.odBR.y - marcas.odTL.y) * factorEscala;
@@ -317,42 +274,48 @@
         document.getElementById('diamIzq').innerText = Math.ceil(aIzq + (2 * Math.abs(((aIzq + puenteMM)/2) - dpIzq)) + 2);
         
         seccionDatos.style.display = 'block';
-        window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' }); // Scroll para móvil
+        window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
     }
-
-    // ====== FASES PERFIL ======
-    btnPerfil.addEventListener('click', () => { encenderCamaraPerfil(); });
 
     async function encenderCamaraPerfil() {
         try {
             const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment", width: { ideal: 1920 } } });
-            video.srcObject = stream; await video.play(); 
-            fase = "inicio_perfil"; faseTitulo.innerText = "Fase 4: Foto de Perfil";
-            
-            canvas.style.display = 'none'; video.style.display = 'block';
-            seccionDatos.style.display = 'none'; btnPerfil.style.display = 'none'; btnDescargar.style.display = 'none';
-            btnCapturar.style.display = 'block'; btnReiniciar.style.display = 'none';
-            
-            hud.style.display = 'flex'; hudTexto.innerText = "Rostro de Perfil (90°)";
-            hudOval.style.border = "none"; hudLineH.style.display = "none"; hudLineV.style.borderLeft = "2px dashed var(--accent)"; 
-            
-            info.innerHTML = "Gira al paciente <b>90 grados</b>. Coloque el <b>Sticker Circular</b> lateral y presione Tomar Foto.";
-            try { videoTrack = stream.getVideoTracks()[0]; if (typeof ImageCapture !== 'undefined' || videoTrack.getCapabilities().torch) { btnLinterna.style.display = 'block'; } } catch (e) { }
-        } catch (err) { alert("Error de cámara"); }
+            video.srcObject = stream; 
+            video.onloadedmetadata = () => {
+                video.play().catch(e=>console.warn(e));
+                fase = "inicio_perfil"; faseTitulo.innerText = "Fase 4: Foto de Perfil";
+                canvas.style.display = 'none'; video.style.display = 'block';
+                seccionDatos.style.display = 'none'; btnPerfil.style.display = 'none'; btnDescargar.style.display = 'none';
+                btnCapturar.style.display = 'block'; btnReiniciar.style.display = 'none';
+                
+                hud.style.display = 'flex'; 
+                document.getElementById('hudTexto').innerText = "Rostro de Perfil (90°)";
+                document.getElementById('hudOval').style.border = "none"; 
+                document.getElementById('hudLineH').style.display = "none"; 
+                document.getElementById('hudLineV').style.borderLeft = "2px dashed var(--accent)"; 
+                
+                info.innerHTML = "Asegure que el <b>celular esté recto (no inclinado)</b>. Coloque el Lente de Prueba lateral y presione Tomar Foto.";
+            };
+            try { videoTrack = stream.getVideoTracks()[0]; if (typeof ImageCapture !== 'undefined' || (videoTrack.getCapabilities && videoTrack.getCapabilities().torch)) { btnLinterna.style.display = 'block'; } } catch (e) { }
+        } catch (err) { alert("Error de cámara al cambiar a perfil."); }
     }
 
     function iniciarFaseCalibracionPerfil() {
-        fase = "calibracion_perfil"; faseTitulo.innerText = "Fase 5: Calibrador Sticker";
-        info.innerHTML = "Mueve el joystick al <b>Sticker</b>. Usa la barra para ajustar el anillo. Escribe el diámetro arriba.";
-        panelCalibracion.style.display = 'flex'; lblTipoCalib.innerText = "Diámetro Sticker:"; inputCalibReal.value = "15.0"; sliderCalib.value = 40; sliderCalib.min = 10; sliderCalib.max = 150;
-        let w = canvas.width, h = canvas.height; marcas = { calibPerfil: { x: w*0.5, y: h*0.5, radius: 40 } };
+        fase = "calibracion_perfil"; faseTitulo.innerText = "Fase 5: Lente de Prueba";
+        info.innerHTML = "Mueve el joystick y usa la barra para que el anillo encaje exacto en el <b>Lente de Prueba</b>.";
+        panelCalibracion.style.display = 'flex'; 
+        lblTipoCalib.innerText = "Lente de Prueba:"; 
+        inputCalibReal.value = "36.0"; // DIAMETRO POR DEFECTO PARA EL LENTE DE PRUEBA
+        sliderCalib.value = 120; 
+        sliderCalib.min = 20; sliderCalib.max = 400; // SLIDER AMPLIADO PARA LENTES GRANDES
+        let w = canvas.width, h = canvas.height; marcas = { calibPerfil: { x: w*0.5, y: h*0.5, radius: 120 } };
         btnAvanzar.style.display = "block"; btnAvanzar.innerText = "Siguiente: Panto y BVD ➔"; dibujarTodo();
     }
 
     function iniciarFaseMedicionPerfil() {
         fase = "medicion_perfil"; faseTitulo.innerText = "Fase 6: Ángulo y Vértice"; panelCalibracion.style.display = 'none';
         info.innerHTML = "<b>Amarillos:</b> Borde Superior e Inferior del Aro.<br><b>Verdes:</b> Ápice de Córnea y Cara interna del Lente.";
-        let stickerReal = parseFloat(inputCalibReal.value) || 15.0; factorEscalaPerfil = stickerReal / (marcas.calibPerfil.radius * 2); 
+        let stickerReal = parseFloat(inputCalibReal.value) || 36.0; factorEscalaPerfil = stickerReal / (marcas.calibPerfil.radius * 2); 
         let w = canvas.width, h = canvas.height;
         marcas = { pantoTop: {x: w*0.5, y: h*0.35, color: COLOR_ZEISS}, pantoBot: {x: w*0.45, y: h*0.55, color: COLOR_ZEISS}, bvdCornea: {x: w*0.4, y: h*0.45, color: COLOR_VERDE}, bvdLente: {x: w*0.48, y: h*0.45, color: COLOR_VERDE} };
         btnAvanzar.innerText = "Calcular Resultados Finales ✓"; dibujarTodo();
@@ -372,72 +335,43 @@
         window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' }); 
     }
 
-    // ====== GENERADOR DE REPORTE (NUEVO) ======
-    btnDescargar.addEventListener('click', () => {
-        // Creamos un canvas virtual grande para el documento final
-        const repCanvas = document.createElement('canvas');
-        const ctxR = repCanvas.getContext('2d');
-        const W = canvasFoto.width;
-        const H_foto = canvasFoto.height;
-        const H_datos = modoOperacion === "completa" && fase.includes("finales") ? 450 : 350; // Más alto si tiene perfil
-        
-        repCanvas.width = W;
-        repCanvas.height = H_foto + H_datos;
+    function avanzarFase() {
+        if(fase === "calibracion") iniciarFaseMontura(); else if(fase === "montura") iniciarFasePupilas(); else if(fase === "pupilas") calcularResultadosFrente();
+        else if(fase === "calibracion_perfil") iniciarFaseMedicionPerfil(); else if(fase === "medicion_perfil") calcularResultadosPerfil();
+    }
 
-        // 1. Dibujar la foto con las miras actuales
-        ctxR.drawImage(canvas, 0, 0);
+    function descargarReporte() {
+        const repCanvas = document.createElement('canvas'); const ctxR = repCanvas.getContext('2d');
+        const W = canvasFoto.width; const H_foto = canvasFoto.height;
+        const H_datos = modoOperacion === "completa" && fase.includes("finales") ? 550 : 400; 
+        repCanvas.width = W; repCanvas.height = H_foto + H_datos;
+        ctxR.drawImage(canvas, 0, 0); 
+        ctxR.fillStyle = "#1c1c1e"; ctxR.fillRect(0, H_foto, W, H_datos); 
+        ctxR.fillStyle = COLOR_ZEISS; ctxR.font = "bold 36px sans-serif"; ctxR.fillText("REPORTE BIOMÉTRICO - i.Terminal Pro", 40, H_foto + 60);
 
-        // 2. Dibujar fondo oscuro para los datos
-        ctxR.fillStyle = "#1c1c1e";
-        ctxR.fillRect(0, H_foto, W, H_datos);
-
-        // 3. Título del Reporte
-        ctxR.fillStyle = COLOR_ZEISS;
-        ctxR.font = "bold 36px sans-serif";
-        ctxR.fillText("REPORTE BIOMÉTRICO - i.Terminal Pro", 40, H_foto + 60);
-
-        // 4. Configurar tipografía para datos
-        ctxR.fillStyle = "#f5f5f7";
-        ctxR.font = "26px sans-serif";
-        let y = H_foto + 120;
-        const ls = 45; // Line spacing
-
-        // Datos Frontales
+        ctxR.fillStyle = "#f5f5f7"; ctxR.font = "28px sans-serif"; let y = H_foto + 130; const ls = 50; 
         ctxR.fillText(`• Centrado: DP (OD / OI) = ${document.getElementById('dpDer').innerText} / ${document.getElementById('dpIzq').innerText} mm  |  Total = ${document.getElementById('dpTotal').innerText} mm`, 40, y); y += ls;
         ctxR.fillText(`• Alturas: (OD / OI) = ${document.getElementById('altDer').innerText} / ${document.getElementById('altIzq').innerText} mm`, 40, y); y += ls*1.5;
         
         ctxR.fillText(`• Montura (Sistema Boxing):`, 40, y); y += ls;
         ctxR.font = "24px sans-serif"; ctxR.fillStyle = "#86868b";
-        ctxR.fillText(`  A (OD/OI): ${document.getElementById('aDer').innerText} / ${document.getElementById('aIzq').innerText} mm   |   B: ${document.getElementById('bDer').innerText} / ${document.getElementById('bIzq').innerText} mm   |   Puente: ${document.getElementById('puente').innerText} mm`, 40, y); y += ls*1.5;
+        ctxR.fillText(`  A: ${document.getElementById('aDer').innerText} / ${document.getElementById('aIzq').innerText} mm  |  B: ${document.getElementById('bDer').innerText} / ${document.getElementById('bIzq').innerText} mm  |  Puente: ${document.getElementById('puente').innerText} mm`, 40, y); y += ls*1.5;
         
-        ctxR.fillStyle = "#f5f5f7"; ctxR.font = "26px sans-serif";
-        ctxR.fillText(`• Diámetro Mínimo Sugerido: OD = ${document.getElementById('diamDer').innerText}  |  OI = ${document.getElementById('diamIzq').innerText}`, 40, y); y += ls*1.5;
+        ctxR.fillStyle = "#f5f5f7"; ctxR.font = "28px sans-serif";
+        ctxR.fillText(`• Diámetro Mínimo: OD = ${document.getElementById('diamDer').innerText}  |  OI = ${document.getElementById('diamIzq').innerText}`, 40, y); y += ls*1.5;
 
-        // Datos de Perfil (Si existen)
         if (document.getElementById('pantoVal').innerText !== "-") {
-            ctxR.fillStyle = COLOR_VERDE;
+            ctxR.fillStyle = COLOR_VERDE; ctxR.font = "bold 28px sans-serif";
             ctxR.fillText(`• Perfil: Ángulo Panto = ${document.getElementById('pantoVal').innerText}  |  Vértice (BVD) = ${document.getElementById('bvdVal').innerText}`, 40, y);
         }
-
-        // 5. Descargar la imagen generada
-        const link = document.createElement('a');
-        link.download = `Biometria_Paciente_${new Date().getTime()}.png`;
-        link.href = repCanvas.toDataURL('image/png');
-        link.click();
-    });
-
-    // ====== NAVEGACIÓN Y EVENTOS TÁCTILES ======
-    btnAvanzar.addEventListener('click', () => {
-        if(fase === "calibracion") iniciarFaseMontura(); else if(fase === "montura") iniciarFasePupilas(); else if(fase === "pupilas") calcularResultadosFrente();
-        else if(fase === "calibracion_perfil") iniciarFaseMedicionPerfil(); else if(fase === "medicion_perfil") calcularResultadosPerfil();
-    });
+        const link = document.createElement('a'); link.download = `Biometria_Paciente_${new Date().getTime()}.png`; link.href = repCanvas.toDataURL('image/png'); link.click();
+    }
 
     function dibujarTodo() {
         if(!canvasFoto.width) return;
         ctx.clearRect(0, 0, canvas.width, canvas.height); ctx.drawImage(canvasFoto, 0, 0);
 
-        if(fase === "calibracion") dibujarCalibradorHVID(marcas.calibFrente.x, marcas.calibFrente.y, marcas.calibFrente.width);
-        
+        if(fase === "calibracion") { dibujarCalibradorHVID(marcas.calibFrente.x, marcas.calibFrente.y, marcas.calibFrente.width); }
         if(fase === "montura" || fase === "pupilas" || fase === "resultados_frente" || (fase === "resultados_finales" && modoOperacion === "rapida")) {
             dibujarCaja(marcas.odTL, marcas.odBR, fase === "montura"); dibujarCaja(marcas.oiTL, marcas.oiBR, fase === "montura");
         }
@@ -445,16 +379,12 @@
             dibujarMiraConJoystick(marcas.pupDer.x, marcas.pupDer.y, fase === "pupilas", COLOR_ZEISS); dibujarMiraConJoystick(marcas.pupIzq.x, marcas.pupIzq.y, fase === "pupilas", COLOR_ZEISS);
         }
 
-        if(fase === "calibracion_perfil") dibujarCalibradorSticker(marcas.calibPerfil.x, marcas.calibPerfil.y, marcas.calibPerfil.radius);
-        
+        if(fase === "calibracion_perfil") { dibujarCalibradorSticker(marcas.calibPerfil.x, marcas.calibPerfil.y, marcas.calibPerfil.radius); }
         if(fase === "medicion_perfil" || (fase === "resultados_finales" && modoOperacion === "completa")) {
             ctx.beginPath(); ctx.moveTo(marcas.pantoTop.x, marcas.pantoTop.y); ctx.lineTo(marcas.pantoBot.x, marcas.pantoBot.y); ctx.strokeStyle = COLOR_ZEISS; ctx.lineWidth = 3; ctx.stroke();
             ctx.beginPath(); ctx.moveTo(marcas.bvdCornea.x, marcas.bvdCornea.y); ctx.lineTo(marcas.bvdLente.x, marcas.bvdLente.y); ctx.strokeStyle = COLOR_VERDE; ctx.lineWidth = 3; ctx.stroke();
-            
-            dibujarMiraConJoystick(marcas.pantoTop.x, marcas.pantoTop.y, fase === "medicion_perfil", COLOR_ZEISS);
-            dibujarMiraConJoystick(marcas.pantoBot.x, marcas.pantoBot.y, fase === "medicion_perfil", COLOR_ZEISS);
-            dibujarMiraConJoystick(marcas.bvdCornea.x, marcas.bvdCornea.y, fase === "medicion_perfil", COLOR_VERDE);
-            dibujarMiraConJoystick(marcas.bvdLente.x, marcas.bvdLente.y, fase === "medicion_perfil", COLOR_VERDE);
+            dibujarMiraConJoystick(marcas.pantoTop.x, marcas.pantoTop.y, fase === "medicion_perfil", COLOR_ZEISS); dibujarMiraConJoystick(marcas.pantoBot.x, marcas.pantoBot.y, fase === "medicion_perfil", COLOR_ZEISS);
+            dibujarMiraConJoystick(marcas.bvdCornea.x, marcas.bvdCornea.y, fase === "medicion_perfil", COLOR_VERDE); dibujarMiraConJoystick(marcas.bvdLente.x, marcas.bvdLente.y, fase === "medicion_perfil", COLOR_VERDE);
         }
     }
 
@@ -465,10 +395,12 @@
     function dibujarCaja(pTL, pBR, interactiva) { let x = Math.min(pTL.x, pBR.x), y = Math.min(pTL.y, pBR.y), w = Math.abs(pBR.x - pTL.x), h = Math.abs(pBR.y - pTL.y); ctx.strokeStyle = COLOR_ZEISS; ctx.lineWidth = 2; ctx.strokeRect(x, y, w, h); if(interactiva) { dibujarPunto(pTL.x, pTL.y, COLOR_ZEISS); dibujarPunto(pBR.x, pBR.y, COLOR_ZEISS); } }
     function dibujarMiraConJoystick(x, y, interactivo, color) { ctx.strokeStyle = "rgba(0,0,0,0.6)"; ctx.lineWidth = 4; ctx.beginPath(); ctx.arc(x, y, 14, 0, Math.PI*2); ctx.stroke(); ctx.strokeStyle = color; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(x, y, 14, 0, Math.PI*2); ctx.stroke(); ctx.beginPath(); ctx.moveTo(x-22, y); ctx.lineTo(x+22, y); ctx.moveTo(x, y-22); ctx.lineTo(x, y+22); ctx.stroke(); if (interactivo) { dibujarJoystickSolo(x, y, color); } }
 
+    // ====== ARRASTRE ======
     canvas.addEventListener('pointerdown', (e) => {
         e.preventDefault(); canvas.setPointerCapture(e.pointerId);
         const rect = canvas.getBoundingClientRect(); const ratio = canvas.width / rect.width;
         let x = (e.clientX - rect.left) * ratio, y = (e.clientY - rect.top) * ratio, radio = 50 * ratio, offsetY = canvas.width * 0.08;
+
         if (fase === "calibracion") { if(Math.hypot(marcas.calibFrente.x - x, (marcas.calibFrente.y + offsetY) - y) < radio || Math.hypot(marcas.calibFrente.x - x, marcas.calibFrente.y - y) < radio) { nodoArrastrado = "calibFrente"; dragOffset = {x: x - marcas.calibFrente.x, y: y - marcas.calibFrente.y}; } } 
         else if (fase === "montura") { for(let key of ['odTL', 'odBR', 'oiTL', 'oiBR']) { if(Math.hypot(marcas[key].x - x, marcas[key].y - y) < radio) { nodoArrastrado = key; dragOffset = {x: x - marcas[key].x, y: y - marcas[key].y}; break; } } } 
         else if (fase === "pupilas") { for(let key of ['pupDer', 'pupIzq']) { if(Math.hypot(marcas[key].x - x, (marcas[key].y + offsetY) - y) < radio || Math.hypot(marcas[key].x - x, marcas[key].y - y) < radio) { nodoArrastrado = key; dragOffset = {x: x - marcas[key].x, y: y - marcas[key].y}; break; } } } 
@@ -479,7 +411,6 @@
     canvas.addEventListener('pointermove', (e) => { if(!nodoArrastrado) return; e.preventDefault(); const rect = canvas.getBoundingClientRect(); const ratio = canvas.width / rect.width; marcas[nodoArrastrado].x = ((e.clientX - rect.left) * ratio) - dragOffset.x; marcas[nodoArrastrado].y = ((e.clientY - rect.top) * ratio) - dragOffset.y; dibujarTodo(); });
     canvas.addEventListener('pointerup', (e) => { nodoArrastrado = null; canvas.releasePointerCapture(e.pointerId); });
     canvas.addEventListener('pointercancel', (e) => { nodoArrastrado = null; canvas.releasePointerCapture(e.pointerId); });
-
 </script>
 </body>
 </html>
