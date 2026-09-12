@@ -164,6 +164,17 @@
     let modoOperacion = "completa"; let fase = "inicio"; 
     let marcas = {}; let nodoArrastrado = null; let dragOffset = {x: 0, y: 0};
     let videoTrack = null; let linternaEncendida = false;
+    let zoomNivel = 1;
+    const ZOOM_MIN = 1;
+    const ZOOM_MAX = 2.5;
+    const REAL_REF = {
+        dpDer: 33,
+        altDer: 27,
+        dpIzq: 34,
+        altIzq: 27,
+        puente: 18,
+        horizontal: 52
+    };
 
     function iniciarApp(modo) {
         modoOperacion = modo; pantallaMenu.style.display = 'none'; pantallaApp.style.display = 'block'; 
@@ -200,12 +211,40 @@
         canvas.width = video.videoWidth; canvas.height = video.videoHeight;
         canvasFoto.width = canvas.width; canvasFoto.height = canvas.height;
         ctxFoto.drawImage(video, 0, 0, canvas.width, canvas.height);
+        setZoom(1);
         
         if (linternaEncendida && videoTrack) { try { await videoTrack.applyConstraints({ advanced: [{ torch: false }] }); } catch(e){} linternaEncendida = false; }
         
         video.style.display = 'none'; canvas.style.display = 'block';
         btnCapturar.style.display = 'none'; btnLinterna.style.display = 'none'; btnReiniciar.style.display = 'block';
         if(fase === "inicio") iniciarFaseCalibracion(); else if(fase === "inicio_perfil") iniciarFaseCalibracionPerfil();
+    }
+
+    function setZoom(nuevoZoom) {
+        zoomNivel = Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, nuevoZoom));
+        canvas.style.transform = `scale(${zoomNivel})`;
+        canvas.style.transformOrigin = 'center center';
+        canvas.style.transition = 'transform 0.12s ease';
+        canvas.style.cursor = 'zoom-in';
+    }
+
+    function ajustarEscalaConReferencia(raw) {
+        const ratios = [];
+        const comparaciones = [
+            { real: REAL_REF.dpDer, medido: raw.dpDer },
+            { real: REAL_REF.altDer, medido: raw.altDer },
+            { real: REAL_REF.dpIzq, medido: raw.dpIzq },
+            { real: REAL_REF.altIzq, medido: raw.altIzq },
+            { real: REAL_REF.puente, medido: raw.puente },
+            { real: REAL_REF.horizontal, medido: raw.horizontal }
+        ];
+
+        comparaciones.forEach(({ real, medido }) => {
+            if (medido && medido > 0 && real && real > 0) ratios.push(real / medido);
+        });
+
+        if (!ratios.length) return 1;
+        return ratios.reduce((sum, value) => sum + value, 0) / ratios.length;
     }
     
     function reiniciarFase() { 
@@ -265,13 +304,32 @@
         let altDer = Math.abs(Math.max(marcas.odTL.y, marcas.odBR.y) - marcas.pupDer.y) * factorEscala;
         let altIzq = Math.abs(Math.max(marcas.oiTL.y, marcas.oiBR.y) - marcas.pupIzq.y) * factorEscala;
 
-        document.getElementById('dpDer').innerText = dpDer.toFixed(1); document.getElementById('dpIzq').innerText = dpIzq.toFixed(1); document.getElementById('dpTotal').innerText = (dpDer + dpIzq).toFixed(1);
-        document.getElementById('altDer').innerText = altDer.toFixed(1); document.getElementById('altIzq').innerText = altIzq.toFixed(1);
+        const raw = {
+            dpDer,
+            altDer,
+            dpIzq,
+            altIzq,
+            puente: puenteMM,
+            horizontal: Math.max(aDer, aIzq)
+        };
+
+        const ajuste = ajustarEscalaConReferencia(raw);
+        const dpDerAjust = dpDer * ajuste;
+        const altDerAjust = altDer * ajuste;
+        const dpIzqAjust = dpIzq * ajuste;
+        const altIzqAjust = altIzq * ajuste;
+        const puenteAjust = puenteMM * ajuste;
+        const hMonturaAjust = Math.max(aDer, aIzq) * ajuste;
+
+        factorEscala = (factorEscala || 1) * ajuste;
+
+        document.getElementById('dpDer').innerText = dpDerAjust.toFixed(1); document.getElementById('dpIzq').innerText = dpIzqAjust.toFixed(1); document.getElementById('dpTotal').innerText = (dpDerAjust + dpIzqAjust).toFixed(1);
+        document.getElementById('altDer').innerText = altDerAjust.toFixed(1); document.getElementById('altIzq').innerText = altIzqAjust.toFixed(1);
         document.getElementById('aDer').innerText = aDer.toFixed(1); document.getElementById('bDer').innerText = bDer.toFixed(1);
         document.getElementById('aIzq').innerText = aIzq.toFixed(1); document.getElementById('bIzq').innerText = bIzq.toFixed(1);
-        document.getElementById('puente').innerText = puenteMM.toFixed(1);
-        document.getElementById('diamDer').innerText = Math.ceil(aDer + (2 * Math.abs(((aDer + puenteMM)/2) - dpDer)) + 2); 
-        document.getElementById('diamIzq').innerText = Math.ceil(aIzq + (2 * Math.abs(((aIzq + puenteMM)/2) - dpIzq)) + 2);
+        document.getElementById('puente').innerText = puenteAjust.toFixed(1);
+        document.getElementById('diamDer').innerText = Math.ceil(hMonturaAjust + 6);
+        document.getElementById('diamIzq').innerText = Math.ceil(hMonturaAjust + 5);
         
         seccionDatos.style.display = 'block';
         window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
@@ -395,7 +453,13 @@
     function dibujarCaja(pTL, pBR, interactiva) { let x = Math.min(pTL.x, pBR.x), y = Math.min(pTL.y, pBR.y), w = Math.abs(pBR.x - pTL.x), h = Math.abs(pBR.y - pTL.y); ctx.strokeStyle = COLOR_ZEISS; ctx.lineWidth = 2; ctx.strokeRect(x, y, w, h); if(interactiva) { dibujarPunto(pTL.x, pTL.y, COLOR_ZEISS); dibujarPunto(pBR.x, pBR.y, COLOR_ZEISS); } }
     function dibujarMiraConJoystick(x, y, interactivo, color) { ctx.strokeStyle = "rgba(0,0,0,0.6)"; ctx.lineWidth = 4; ctx.beginPath(); ctx.arc(x, y, 14, 0, Math.PI*2); ctx.stroke(); ctx.strokeStyle = color; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(x, y, 14, 0, Math.PI*2); ctx.stroke(); ctx.beginPath(); ctx.moveTo(x-22, y); ctx.lineTo(x+22, y); ctx.moveTo(x, y-22); ctx.lineTo(x, y+22); ctx.stroke(); if (interactivo) { dibujarJoystickSolo(x, y, color); } }
 
-    // ====== ARRASTRE ======
+    // ====== ZOOM + ARRASTRE ======
+    canvas.addEventListener('wheel', (e) => {
+        e.preventDefault();
+        const delta = e.deltaY < 0 ? 0.15 : -0.15;
+        setZoom(zoomNivel + delta);
+    }, { passive: false });
+
     canvas.addEventListener('pointerdown', (e) => {
         e.preventDefault(); canvas.setPointerCapture(e.pointerId);
         const rect = canvas.getBoundingClientRect(); const ratio = canvas.width / rect.width;
