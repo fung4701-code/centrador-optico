@@ -482,6 +482,67 @@
         startCenter: { x: 0, y: 0 }
     };
 
+    const touchDragState = {
+        active: false,
+        key: null,
+        touchId: null,
+        dragOffset: { x: 0, y: 0 }
+    };
+
+    function getMarkerHitKeyAt(x, y) {
+        const ratio = canvas.width / canvas.getBoundingClientRect().width;
+        const radio = 50 * ratio;
+        const offsetY = canvas.width * 0.08;
+
+        if (fase === "calibracion") {
+            if (Math.hypot(marcas.calibFrente.x - x, (marcas.calibFrente.y + offsetY) - y) < radio || Math.hypot(marcas.calibFrente.x - x, marcas.calibFrente.y - y) < radio) {
+                return "calibFrente";
+            }
+        }
+
+        if (fase === "montura") {
+            for (let key of ['odTL', 'odBR', 'oiTL', 'oiBR']) {
+                if (Math.hypot(marcas[key].x - x, marcas[key].y - y) < radio) {
+                    return key;
+                }
+            }
+        }
+
+        if (fase === "pupilas") {
+            for (let key of ['pupDer', 'pupIzq']) {
+                if (Math.hypot(marcas[key].x - x, (marcas[key].y + offsetY) - y) < radio || Math.hypot(marcas[key].x - x, marcas[key].y - y) < radio) {
+                    return key;
+                }
+            }
+        }
+
+        if (fase === "calibracion_perfil") {
+            if (Math.hypot(marcas.calibPerfil.x - x, (marcas.calibPerfil.y + offsetY) - y) < radio || Math.hypot(marcas.calibPerfil.x - x, marcas.calibPerfil.y - y) < radio) {
+                return "calibPerfil";
+            }
+        }
+
+        if (fase === "medicion_perfil") {
+            for (let key of ['pantoTop', 'pantoBot', 'bvdCornea', 'bvdLente']) {
+                if (Math.hypot(marcas[key].x - x, (marcas[key].y + offsetY) - y) < radio || Math.hypot(marcas[key].x - x, marcas[key].y - y) < radio) {
+                    return key;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    function iniciarArrastreDesdePunto(x, y) {
+        const key = getMarkerHitKeyAt(x, y);
+        if (!key) return;
+        nodoArrastrado = key;
+        dragOffset = {
+            x: x - marcas[key].x,
+            y: y - marcas[key].y
+        };
+    }
+
     canvas.addEventListener('touchstart', (e) => {
         if (e.touches.length === 2) {
             const rect = canvas.getBoundingClientRect();
@@ -491,7 +552,26 @@
             pinchState.startDistance = getTouchDistance(e.touches[0], e.touches[1]);
             pinchState.startZoom = zoomNivel;
             pinchState.startCenter = { x: centerX, y: centerY };
+            touchDragState.active = false;
+            touchDragState.key = null;
             nodoArrastrado = null;
+            e.preventDefault();
+            return;
+        }
+
+        if (e.touches.length === 1) {
+            const rect = canvas.getBoundingClientRect();
+            const ratio = canvas.width / rect.width;
+            const x = (e.touches[0].clientX - rect.left) * ratio;
+            const y = (e.touches[0].clientY - rect.top) * ratio;
+            const key = getMarkerHitKeyAt(x, y);
+            if (!key) return;
+            touchDragState.active = true;
+            touchDragState.key = key;
+            touchDragState.touchId = e.touches[0].identifier;
+            touchDragState.dragOffset = { x: x - marcas[key].x, y: y - marcas[key].y };
+            nodoArrastrado = key;
+            dragOffset = { ...touchDragState.dragOffset };
             e.preventDefault();
         }
     }, { passive: false });
@@ -505,6 +585,22 @@
             const centerY = ((e.touches[0].clientY + e.touches[1].clientY) / 2) - rect.top;
             setZoom(pinchState.startZoom * factor, centerX, centerY);
             e.preventDefault();
+            return;
+        }
+
+        if (e.touches.length === 1 && touchDragState.active && touchDragState.key) {
+            const rect = canvas.getBoundingClientRect();
+            const ratio = canvas.width / rect.width;
+            const touch = e.touches[0];
+            const x = (touch.clientX - rect.left) * ratio;
+            const y = (touch.clientY - rect.top) * ratio;
+            if (marcas[touchDragState.key]) {
+                marcas[touchDragState.key].x = x - touchDragState.dragOffset.x;
+                marcas[touchDragState.key].y = y - touchDragState.dragOffset.y;
+                nodoArrastrado = touchDragState.key;
+                dibujarTodo();
+            }
+            e.preventDefault();
         }
     }, { passive: false });
 
@@ -513,6 +609,10 @@
         pinchState.startDistance = 0;
         pinchState.startZoom = zoomNivel;
         pinchState.startCenter = { x: 0, y: 0 };
+        touchDragState.active = false;
+        touchDragState.key = null;
+        touchDragState.touchId = null;
+        nodoArrastrado = null;
     });
 
     canvas.addEventListener('touchcancel', () => {
@@ -520,22 +620,21 @@
         pinchState.startDistance = 0;
         pinchState.startZoom = zoomNivel;
         pinchState.startCenter = { x: 0, y: 0 };
+        touchDragState.active = false;
+        touchDragState.key = null;
+        touchDragState.touchId = null;
+        nodoArrastrado = null;
     });
 
     canvas.addEventListener('pointerdown', (e) => {
         if (e.pointerType === 'touch') return;
         e.preventDefault(); canvas.setPointerCapture(e.pointerId);
         const rect = canvas.getBoundingClientRect(); const ratio = canvas.width / rect.width;
-        let x = (e.clientX - rect.left) * ratio, y = (e.clientY - rect.top) * ratio, radio = 50 * ratio, offsetY = canvas.width * 0.08;
-
-        if (fase === "calibracion") { if(Math.hypot(marcas.calibFrente.x - x, (marcas.calibFrente.y + offsetY) - y) < radio || Math.hypot(marcas.calibFrente.x - x, marcas.calibFrente.y - y) < radio) { nodoArrastrado = "calibFrente"; dragOffset = {x: x - marcas.calibFrente.x, y: y - marcas.calibFrente.y}; } } 
-        else if (fase === "montura") { for(let key of ['odTL', 'odBR', 'oiTL', 'oiBR']) { if(Math.hypot(marcas[key].x - x, marcas[key].y - y) < radio) { nodoArrastrado = key; dragOffset = {x: x - marcas[key].x, y: y - marcas[key].y}; break; } } } 
-        else if (fase === "pupilas") { for(let key of ['pupDer', 'pupIzq']) { if(Math.hypot(marcas[key].x - x, (marcas[key].y + offsetY) - y) < radio || Math.hypot(marcas[key].x - x, marcas[key].y - y) < radio) { nodoArrastrado = key; dragOffset = {x: x - marcas[key].x, y: y - marcas[key].y}; break; } } } 
-        else if (fase === "calibracion_perfil") { if(Math.hypot(marcas.calibPerfil.x - x, (marcas.calibPerfil.y + offsetY) - y) < radio || Math.hypot(marcas.calibPerfil.x - x, marcas.calibPerfil.y - y) < radio) { nodoArrastrado = "calibPerfil"; dragOffset = {x: x - marcas.calibPerfil.x, y: y - marcas.calibPerfil.y}; } } 
-        else if (fase === "medicion_perfil") { for(let key of ['pantoTop', 'pantoBot', 'bvdCornea', 'bvdLente']) { if(Math.hypot(marcas[key].x - x, (marcas[key].y + offsetY) - y) < radio || Math.hypot(marcas[key].x - x, marcas[key].y - y) < radio) { nodoArrastrado = key; dragOffset = {x: x - marcas[key].x, y: y - marcas[key].y}; break; } } }
+        let x = (e.clientX - rect.left) * ratio, y = (e.clientY - rect.top) * ratio;
+        iniciarArrastreDesdePunto(x, y);
     });
 
-    canvas.addEventListener('pointermove', (e) => { if(!nodoArrastrado) return; e.preventDefault(); const rect = canvas.getBoundingClientRect(); const ratio = canvas.width / rect.width; marcas[nodoArrastrado].x = ((e.clientX - rect.left) * ratio) - dragOffset.x; marcas[nodoArrastrado].y = ((e.clientY - rect.top) * ratio) - dragOffset.y; dibujarTodo(); });
+    canvas.addEventListener('pointermove', (e) => { if(!nodoArrastrado || e.pointerType === 'touch') return; e.preventDefault(); const rect = canvas.getBoundingClientRect(); const ratio = canvas.width / rect.width; marcas[nodoArrastrado].x = ((e.clientX - rect.left) * ratio) - dragOffset.x; marcas[nodoArrastrado].y = ((e.clientY - rect.top) * ratio) - dragOffset.y; dibujarTodo(); });
     canvas.addEventListener('pointerup', (e) => { nodoArrastrado = null; canvas.releasePointerCapture(e.pointerId); });
     canvas.addEventListener('pointercancel', (e) => { nodoArrastrado = null; canvas.releasePointerCapture(e.pointerId); });
 </script>
