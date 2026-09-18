@@ -220,10 +220,19 @@
         if(fase === "inicio") iniciarFaseCalibracion(); else if(fase === "inicio_perfil") iniciarFaseCalibracionPerfil();
     }
 
-    function setZoom(nuevoZoom) {
+    function setZoom(nuevoZoom, originX = null, originY = null) {
         zoomNivel = Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, nuevoZoom));
+
+        if (originX !== null && originY !== null) {
+            const rect = canvas.getBoundingClientRect();
+            const xPercent = ((originX / rect.width) * 100).toFixed(2);
+            const yPercent = ((originY / rect.height) * 100).toFixed(2);
+            canvas.style.transformOrigin = `${xPercent}% ${yPercent}%`;
+        } else {
+            canvas.style.transformOrigin = 'center center';
+        }
+
         canvas.style.transform = `scale(${zoomNivel})`;
-        canvas.style.transformOrigin = 'center center';
         canvas.style.transition = 'transform 0.12s ease';
         canvas.style.cursor = 'zoom-in';
     }
@@ -460,7 +469,61 @@
         setZoom(zoomNivel + delta);
     }, { passive: false });
 
+    function getTouchDistance(t1, t2) {
+        const dx = t2.clientX - t1.clientX;
+        const dy = t2.clientY - t1.clientY;
+        return Math.hypot(dx, dy);
+    }
+
+    const pinchState = {
+        active: false,
+        startDistance: 0,
+        startZoom: 1,
+        startCenter: { x: 0, y: 0 }
+    };
+
+    canvas.addEventListener('touchstart', (e) => {
+        if (e.touches.length === 2) {
+            const rect = canvas.getBoundingClientRect();
+            const centerX = ((e.touches[0].clientX + e.touches[1].clientX) / 2) - rect.left;
+            const centerY = ((e.touches[0].clientY + e.touches[1].clientY) / 2) - rect.top;
+            pinchState.active = true;
+            pinchState.startDistance = getTouchDistance(e.touches[0], e.touches[1]);
+            pinchState.startZoom = zoomNivel;
+            pinchState.startCenter = { x: centerX, y: centerY };
+            nodoArrastrado = null;
+            e.preventDefault();
+        }
+    }, { passive: false });
+
+    canvas.addEventListener('touchmove', (e) => {
+        if (e.touches.length === 2 && pinchState.active) {
+            const rect = canvas.getBoundingClientRect();
+            const currentDistance = getTouchDistance(e.touches[0], e.touches[1]);
+            const factor = currentDistance / (pinchState.startDistance || 1);
+            const centerX = ((e.touches[0].clientX + e.touches[1].clientX) / 2) - rect.left;
+            const centerY = ((e.touches[0].clientY + e.touches[1].clientY) / 2) - rect.top;
+            setZoom(pinchState.startZoom * factor, centerX, centerY);
+            e.preventDefault();
+        }
+    }, { passive: false });
+
+    canvas.addEventListener('touchend', () => {
+        pinchState.active = false;
+        pinchState.startDistance = 0;
+        pinchState.startZoom = zoomNivel;
+        pinchState.startCenter = { x: 0, y: 0 };
+    });
+
+    canvas.addEventListener('touchcancel', () => {
+        pinchState.active = false;
+        pinchState.startDistance = 0;
+        pinchState.startZoom = zoomNivel;
+        pinchState.startCenter = { x: 0, y: 0 };
+    });
+
     canvas.addEventListener('pointerdown', (e) => {
+        if (e.pointerType === 'touch') return;
         e.preventDefault(); canvas.setPointerCapture(e.pointerId);
         const rect = canvas.getBoundingClientRect(); const ratio = canvas.width / rect.width;
         let x = (e.clientX - rect.left) * ratio, y = (e.clientY - rect.top) * ratio, radio = 50 * ratio, offsetY = canvas.width * 0.08;
